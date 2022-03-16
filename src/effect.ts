@@ -1,5 +1,5 @@
 class ReactiveEffect {
-  _fn: () => void
+  _fn: () => any
 
   constructor(fn: () => void) {
     this._fn = fn
@@ -7,11 +7,12 @@ class ReactiveEffect {
 
   run() {
     nowEffect = this
-    return this._fn()
+    this._fn()
+    return this._fn.bind(this)
   }
 }
 
-export function effect(fn: () => void) {
+export function effect(fn: () => void): ()=>any {
   // 面向对象编程
   const _effect = new ReactiveEffect(fn)
 
