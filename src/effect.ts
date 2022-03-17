@@ -5,8 +5,10 @@ type effectOptions = {
 class ReactiveEffect {
   _fn: () => any
   options: effectOptions
+  deps: Set<any>
 
   constructor(fn: () => void, options?: effectOptions) {
+    this.deps = new Set()
     this._fn = fn
     this.options = options as effectOptions
   }
@@ -14,7 +16,17 @@ class ReactiveEffect {
   run() {
     nowEffect = this
     this._fn()
-    return this._fn.bind(this)
+
+    const fn: any = this._fn.bind(this)
+    fn._effect =  this
+
+    return fn
+  }
+
+  stop() {
+    for (const setItem of this.deps) {
+      setItem.delete(this)
+    }
   }
 }
 
@@ -44,7 +56,10 @@ export function track(row: { [key: string]: any }, key: string | symbol) {
     fnDeps = new Set()
     keyDeps.set(key, fnDeps)
   }
-  fnDeps.add(nowEffect)
+  if (nowEffect) {
+    fnDeps.add(nowEffect)
+    nowEffect.deps.add(fnDeps)
+  }
 }
 
 
@@ -64,4 +79,8 @@ export function trigger(row: { [key: string]: any }, key: string | symbol) {
       effect.run()
     }
   }
+}
+
+export function stop(fn: any) {
+  fn._effect.stop()
 }
