@@ -33,4 +33,45 @@ describe('effect', () => {
     expect(foo).toBe(12)
     expect(runnerResult).toBe('foo')
   })
+
+  it('scheduler', () => {
+    
+    // 1. effect 第二个参数接受为一个对象，其中key为scheduler的值是一个函数
+    // 2. 当effect里面的依赖收集时，收集的不在为effect的第一个函数，而是 scheduler函数
+    // 3. 执行effect返回的runner时，还是执行的effect的第一个函数
+
+
+    let run: any;
+    const scheduler = jest.fn(() => {
+      run = runner
+    })
+
+    const obj = reactive({age: 1})
+    let num;
+    const runner = effect(() => {
+      num = obj.age + 1
+    }, {
+      scheduler
+    })
+
+    // scheduler 不会一开始就运行
+    expect(scheduler).not.toHaveBeenCalled()
+
+    // 执行过 effect 的第一个入参方法
+    expect(num).toBe(2)
+
+    obj.age++
+
+    expect(scheduler).toHaveBeenCalledTimes(1)
+
+    // 当有 scheduler 时, 依赖收集的为 scheduler， 而非 effect 的第一个入参方法
+    expect(num).toBe(2)
+
+    run()
+
+    // 执行runner时，执行的为effect的第一个入参方法
+    expect(num).toBe(3)
+
+
+  })
 })

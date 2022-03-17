@@ -1,8 +1,14 @@
+type effectOptions = {
+  scheduler: () => void,
+  [key: string]: any
+}
 class ReactiveEffect {
   _fn: () => any
+  options: effectOptions
 
-  constructor(fn: () => void) {
+  constructor(fn: () => void, options?: effectOptions) {
     this._fn = fn
+    this.options = options as effectOptions
   }
 
   run() {
@@ -12,17 +18,19 @@ class ReactiveEffect {
   }
 }
 
-export function effect(fn: () => void): ()=>any {
+export function effect(
+  fn: () => void,
+  options?: effectOptions
+): () => any {
   // 面向对象编程
-  const _effect = new ReactiveEffect(fn)
+  const _effect = new ReactiveEffect(fn, options)
 
   return _effect.run()
 }
 
 const trackMap = new Map()
 
-
-let nowEffect: ReactiveEffect;
+let nowEffect: ReactiveEffect
 
 export function track(row: { [key: string]: any }, key: string | symbol) {
   // target -> key -> dep
@@ -50,6 +58,10 @@ export function trigger(row: { [key: string]: any }, key: string | symbol) {
     return
   }
   for (const effect of fnDeps) {
-    effect.run()
+    if (typeof effect.options?.scheduler === 'function') {
+      effect.options.scheduler()
+    } else {
+      effect.run()
+    }
   }
 }
