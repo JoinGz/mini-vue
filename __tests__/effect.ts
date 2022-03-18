@@ -115,4 +115,27 @@ describe('effect', () => {
 
     expect(num).toBe(3)
   })
+
+  it('effect-onStop', () => {
+
+    let num; 
+
+    const onStop = jest.fn()
+
+    const obj = reactive({ age: 1 })
+    
+    const runner = effect(() => {
+      num = obj.age + 1
+    }, {
+      onStop
+    })
+
+    stop(runner)
+
+    expect(onStop).toBeCalledTimes(1)
+
+    
+  })
+
+
 })

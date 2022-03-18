@@ -1,5 +1,6 @@
 type effectOptions = {
-  scheduler: () => void,
+  scheduler?: () => void,
+  stop?: () => void,
   [key: string]: any
 }
 class ReactiveEffect {
@@ -24,10 +25,21 @@ class ReactiveEffect {
   }
 
   stop() {
+
+    if (typeof this.options?.onStop === 'function') {
+      this.options.onStop()
+    }
+    
+    this.clearDeps()
+
+  }
+
+  clearDeps() {
     for (const setItem of this.deps) {
       setItem.delete(this)
     }
   }
+  
 }
 
 export function effect(
