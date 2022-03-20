@@ -56,7 +56,7 @@ const trackMap = new Map()
 
 let nowEffect: ReactiveEffect
 
-export function track(row: { [key: string]: any }, key: string | symbol) {
+export function track(row: { [key: string]: any }, key: string | symbol | number) {
   // target -> key -> dep
   let keyDeps = trackMap.get(row)
   if (!keyDeps) {
@@ -75,7 +75,7 @@ export function track(row: { [key: string]: any }, key: string | symbol) {
 }
 
 
-export function trigger(row: { [key: string]: any }, key: string | symbol) {
+export function trigger(row: { [key: string]: any }, key: string | symbol | number) {
   let keyDeps = trackMap.get(row)
   if (!keyDeps) {
     return
