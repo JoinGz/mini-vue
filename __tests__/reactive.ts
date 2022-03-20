@@ -1,5 +1,5 @@
 import { effect } from '../src/effect'
-import {isReactive, isReadOnly, reactive, readOnly} from '../src/reactive'
+import {isReactive, isReadOnly, reactive, readOnly, shallowReadOnly} from '../src/reactive'
 
 describe('reactive', () => {
   test('happy path', () => {
@@ -83,5 +83,13 @@ describe('reactive', () => {
     expect(level2).toHaveLength(1)
 
 
+  })
+
+  test.skip('shallow->readonly', () => {
+    const obj = { a: 1, foo: { b: 2 } }
+    const proxyObj = shallowReadOnly(obj)
+
+    expect(isReadOnly(proxyObj.a)).toBe(true)
+    expect(isReadOnly(proxyObj.foo)).toBe(false)
   })
 })

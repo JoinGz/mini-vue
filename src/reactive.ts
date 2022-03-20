@@ -1,13 +1,12 @@
 import { track, trigger } from '../src/effect'
 import { Obj, ReactiveFlags } from '../types/base'
-import { multipleHandler, readonlyHandler } from './baseHandler'
-
+import { multipleHandler, readonlyHandler, shallowReadonlyHandler } from './baseHandler'
 
 export function reactive(row: Obj): Obj {
   return createActiveObject(row, multipleHandler)
 }
 
-export function readOnly(row: Obj) {
+export function readOnly(row: Obj): Obj {
   return createActiveObject(row, readonlyHandler)
 }
 
@@ -20,4 +19,8 @@ export function isReactive(row: Obj) {
 }
 export function isReadOnly(row: Obj) {
   return !!row[ReactiveFlags.IS_READONLY]
+}
+
+export function shallowReadOnly(row: Obj) {
+  return createActiveObject(row, shallowReadonlyHandler)
 }

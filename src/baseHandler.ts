@@ -6,7 +6,7 @@ import { reactive, readOnly } from "./reactive"
 import { isObject } from "./shared/utils"
 
 // 抽离get, set
-function createGetter(isReadOnly: boolean = false) {
+function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: boolean} = {}) {
   return function get(org: Obj, key: keyof Obj) {
 
     if (key === ReactiveFlags['IS_REACTIVE']) {
@@ -16,6 +16,11 @@ function createGetter(isReadOnly: boolean = false) {
     }
 
     const result = Reflect.get(org, key)
+
+    // 如果是shallowReadOnly就可以
+    if (options.shallowReadOnly) {
+      return result
+    }
 
     if (isObject(result)) {
       return isReadOnly ? readOnly(result) : reactive(result)
@@ -40,6 +45,7 @@ function createSet() {
 const getter = createGetter()
 const setter = createSet()
 const readOnlyGetter = createGetter(true)
+const shallowReadOnlyGetter = createGetter(true, {shallowReadOnly: true})
 
 export const multipleHandler = {
   get: getter,
@@ -54,7 +60,6 @@ export const readonlyHandler = {
   }
 }
 
-export default {
-  multipleHandler,
-  readonlyHandler,
-}
+export const shallowReadonlyHandler = Object.assign({}, readonlyHandler, {
+  get: shallowReadOnlyGetter
+})
