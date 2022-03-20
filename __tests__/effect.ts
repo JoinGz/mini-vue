@@ -94,7 +94,7 @@ describe('effect', () => {
     expect(num).toBe(3)
   })
   
-  it.skip('effect-stop-支持响应式版', () => {
+  it('effect-stop-支持响应式版', () => {
     // 目前暂未支持
     let num
     const obj = reactive({ age: 1 })

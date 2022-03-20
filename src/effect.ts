@@ -3,10 +3,13 @@ type effectOptions = {
   stop?: () => void,
   [key: string]: any
 }
+let activeEffect: ReactiveEffect
+let shouldTrack: boolean;
 class ReactiveEffect {
   _fn: () => any
   options: effectOptions
   deps: Set<any>
+  active = true
 
   constructor(fn: () => void, options?: effectOptions) {
     this.deps = new Set()
@@ -15,8 +18,14 @@ class ReactiveEffect {
   }
 
   run() {
-    nowEffect = this
-    this._fn()
+
+    if (this.active) {
+      activeEffect = this
+      shouldTrack = true
+      this._fn()
+      shouldTrack = false // 因为是全局变量，这里做复原操作
+    }
+    
 
     const fn: any = this._fn.bind(this)
     fn._effect =  this
@@ -25,6 +34,9 @@ class ReactiveEffect {
   }
 
   stop() {
+    if (!this.active) {
+      return
+    }
 
     if (typeof this.options?.onStop === 'function') {
       this.options.onStop()
@@ -32,6 +44,7 @@ class ReactiveEffect {
     
     this.clearDeps()
 
+    this.active = false
   }
 
   clearDeps() {
@@ -54,9 +67,11 @@ export function effect(
 
 const trackMap = new Map()
 
-let nowEffect: ReactiveEffect
 
 export function track(row: { [key: string]: any }, key: string | symbol | number) {
+  if (!isTracking()) {
+    return
+  }
   // target -> key -> dep
   let keyDeps = trackMap.get(row)
   if (!keyDeps) {
@@ -68,12 +83,15 @@ export function track(row: { [key: string]: any }, key: string | symbol | number
     fnDeps = new Set()
     keyDeps.set(key, fnDeps)
   }
-  if (nowEffect) {
-    fnDeps.add(nowEffect)
-    nowEffect.deps.add(fnDeps)
+  if (!fnDeps.has(activeEffect)) {
+    fnDeps.add(activeEffect)
+    activeEffect.deps.add(fnDeps)
   }
 }
 
+function isTracking() {
+  return activeEffect && shouldTrack
+}
 
 export function trigger(row: { [key: string]: any }, key: string | symbol | number) {
   let keyDeps = trackMap.get(row)
