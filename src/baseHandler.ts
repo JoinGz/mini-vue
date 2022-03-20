@@ -1,10 +1,18 @@
 // 重构优化
 
 import { track, trigger } from "./effect"
+import { Obj, ReactiveFlags } from '../types/base'
 
 // 抽离get, set
 function createGetter(isReadOnly: boolean = false) {
   return function get(org: Obj, key: keyof Obj) {
+
+    if (key === ReactiveFlags['IS_REACTIVE']) {
+      return !isReadOnly
+    } else if (key === ReactiveFlags['IS_READONLY']) {
+      return isReadOnly
+    }
+
     const result  = Reflect.get(org, key)
     if (!isReadOnly) {
       track(org, key)

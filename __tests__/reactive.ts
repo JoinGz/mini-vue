@@ -1,4 +1,4 @@
-import {reactive, readOnly} from '../src/reactive'
+import {isReactive, isReadOnly, reactive, readOnly} from '../src/reactive'
 
 describe('reactive', () => {
   test('happy path', () => {
@@ -6,6 +6,10 @@ describe('reactive', () => {
     const proxyObj = reactive(obj)
     expect(proxyObj).not.toBe(obj)
     expect(proxyObj.age).toBe(1)
+
+    expect(isReactive(proxyObj)).toBe(true)
+    expect(isReactive(obj)).toBe(false)
+    
   })
   
   test('readOnly', () => {
@@ -13,11 +17,13 @@ describe('reactive', () => {
     const proxyObj = readOnly(obj)
     expect(proxyObj).not.toBe(obj)
     expect(proxyObj.age).toBe(1)
-
+    
     console.warn = jest.fn()
     proxyObj.age = 2
-
+    
     expect(console.warn).toBeCalled()
-
+    
+    expect(isReadOnly(proxyObj)).toBe(true)
+    expect(isReadOnly(obj)).toBe(false)
   })
 })
