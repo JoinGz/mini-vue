@@ -3,7 +3,7 @@ import { Obj, ReactiveFlags } from '../types/base'
 import { multipleHandler, readonlyHandler } from './baseHandler'
 
 
-export function reactive(row: Obj) {
+export function reactive(row: Obj): Obj {
   return createActiveObject(row, multipleHandler)
 }
 
