@@ -56,3 +56,37 @@ export function isRef(ref: any) {
 export function unRef(ref: any) {
   return isRef(ref) ? ref.value : ref
 }
+
+export function proxyRef_my(target: any) {
+  return new Proxy(target, {
+    get (target, key) {
+      return unRef(target)[key]
+    }
+  })
+}
+
+export function proxyRef(target: any) {
+  return new Proxy(target, {
+    get (target, key) {
+      return unRef(Reflect.get(target, key))
+    },
+    set (target, key, newValue) {
+      const orgKey = Reflect.get(target, key)
+      
+      // 当原来是ref的时候每次都生成了新个的ref
+      // if (isRef(orgKey)) {
+      //   newValue = isRef(newValue) ? newValue : ref(newValue)
+      //   return Reflect.set(target, key, newValue)
+      // } else {
+      //   return Reflect.set(target, key, newValue)
+      // }
+
+      // 其实只需要改变原来ref的值即可,对象依然保留
+      if (isRef(orgKey) && !isRef(newValue)) {
+        return (orgKey.value = newValue)
+      } else {
+        return Reflect.set(target, key, newValue)
+      }
+    }
+  })
+}

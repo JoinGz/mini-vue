@@ -1,6 +1,6 @@
 import { effect } from "../src/effect";
 import { reactive } from "../src/reactive";
-import { isRef, ref, unRef } from "../src/ref";
+import { isRef, proxyRef, proxyRef_my, ref, unRef } from "../src/ref";
 
 describe('ref', () => {
 
@@ -75,6 +75,37 @@ describe('ref', () => {
     expect(unRef(1)).toBe(1)
 
   })
-  
+
+  test('proxyRef_my', () => {
+    
+    const refObj = ref({name: 'gz', skill: ['vue']})
+    const proxtRefObj = proxyRef_my(refObj)
+    expect(refObj.value.name).toBe('gz')
+
+    expect(proxtRefObj.name).toBe('gz')
+
+  })
+
+
+  test('proxyRef', () => {
+    const obj = {
+      name: 'gz',
+      skill: ref(['vue'])
+    }
+    const proxtRefObj = proxyRef(obj)
+    expect(obj.skill.value[0]).toBe('vue')
+    expect(proxtRefObj.skill[0]).toBe('vue')
+    
+    obj.skill.value = ['react']
+    expect(proxtRefObj.skill[0]).toBe('react')
+    
+    proxtRefObj.skill = ['css']
+    expect(obj.skill.value[0]).toBe('css')
+    
+    proxtRefObj.skill = ref(['js'])
+    expect(obj.skill.value[0]).toBe('js')
+    expect(proxtRefObj.skill[0]).toBe('js')
+
+  })
 
 })
