@@ -1,5 +1,6 @@
 import { effect } from "../src/effect";
-import { ref } from "../src/ref";
+import { reactive } from "../src/reactive";
+import { isRef, ref, unRef } from "../src/ref";
 
 describe('ref', () => {
 
@@ -54,6 +55,26 @@ describe('ref', () => {
     
   })
 
+
+  test('isRef', () => {
+    
+    const refNumber = ref(1)
+    const reactiveA = reactive({ a: 1 })
+    
+    expect(isRef(refNumber)).toBe(true)
+    expect(isRef(reactiveA)).toBe(false)
+    expect(isRef(1)).toBe(false)
+
+  })
+
+  test('unRef', () => {
+    
+    const refNumber = ref(1)
+    
+    expect(unRef(refNumber)).toBe(1)
+    expect(unRef(1)).toBe(1)
+
+  })
   
 
 })

@@ -10,6 +10,7 @@ type refImp = string | number | Obj
 class RefImpl<T> {
   private _value
   deps: Set<any>
+  public __v_isRef =  true
   private _rowValue: T
 
   constructor(value: T) {
@@ -46,4 +47,12 @@ function trackRefValue(deps: Set<any>) {
   if (isTracking()) {
     trackEffect(deps)
   }
+}
+
+export function isRef(ref: any) {
+  return !!ref["__v_isRef"]
+}
+
+export function unRef(ref: any) {
+  return isRef(ref) ? ref.value : ref
 }
