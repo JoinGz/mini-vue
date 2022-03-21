@@ -83,13 +83,18 @@ export function track(row: { [key: string]: any }, key: string | symbol | number
     fnDeps = new Set()
     keyDeps.set(key, fnDeps)
   }
-  if (!fnDeps.has(activeEffect)) {
-    fnDeps.add(activeEffect)
-    activeEffect.deps.add(fnDeps)
+  trackEffect(fnDeps)
+}
+
+export function trackEffect(dep: any) {
+  // 用 dep 来收集所有的依赖
+  if (!dep.has(activeEffect)) {
+    dep.add(activeEffect)
+    activeEffect.deps.add(dep)
   }
 }
 
-function isTracking() {
+export function isTracking() {
   return activeEffect && shouldTrack
 }
 
@@ -102,7 +107,11 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
   if (!fnDeps) {
     return
   }
-  for (const effect of fnDeps) {
+  triggerEffects(fnDeps)
+}
+
+export function triggerEffects(deps: any) {
+  for (const effect of deps) {
     if (typeof effect.options?.scheduler === 'function') {
       effect.options.scheduler()
     } else {

@@ -1,4 +1,3 @@
-import { track, trigger } from '../src/effect'
 import { Obj, ReactiveFlags } from '../types/base'
 import { multipleHandler, readonlyHandler, shallowReadonlyHandler } from './baseHandler'
 
