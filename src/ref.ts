@@ -10,8 +10,11 @@ type refImp = string | number | Obj
 class RefImpl<T> {
   private _value
   deps: Set<any>
+  private _rowValue: T
 
   constructor(value: T) {
+    // 保存原始值，因为对象会对proxy，当时候就对不不准
+    this._rowValue = value
     this._value = convert(value)
     this.deps = new Set()
   }
@@ -23,8 +26,9 @@ class RefImpl<T> {
   }
 
   set value(newValue) {
-    if (hasChanged(this._value, newValue)) {
-      this._value = newValue
+    if (hasChanged(this._rowValue, newValue)) {
+      this._rowValue = newValue
+      this._value = convert(newValue)
       triggerEffects(this.deps)
     }
   }
