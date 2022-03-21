@@ -61,7 +61,7 @@ describe('reactive', () => {
     expect(isReadOnly(proxyObj.skill[1])).toBe(true)
   })
 
-  test.skip('reactive子对象依赖收集失败', () => {
+  test('reactive子对象依赖', () => {
     const obj = { age: 1, skill: ["sing", {piano: 'level5'}], someKey: {b: 6} } 
     const proxyObj = reactive(obj)
 
@@ -70,26 +70,27 @@ describe('reactive', () => {
     expect(isReactive(proxyObj.someKey)).toBe(true)
     expect(isReactive(proxyObj.skill[1])).toBe(true)
 
-    let level2;
-    effect(() => {
-      const xyz = proxyObj.skill
-      level2 = proxyObj.skill = []
+    const log = jest.fn(() => {
+      console.log(proxyObj.skill)
     })
 
-    expect(level2).toHaveLength(0)
+    effect(log)
+
+    expect(log).toBeCalledTimes(1)
     
     proxyObj.skill = [1]
     
-    expect(level2).toHaveLength(1)
+    expect(log).toBeCalledTimes(2)
 
 
   })
 
-  test.skip('shallow->readonly', () => {
+  test('shallow->readonly', () => {
     const obj = { a: 1, foo: { b: 2 } }
     const proxyObj = shallowReadOnly(obj)
 
-    expect(isReadOnly(proxyObj.a)).toBe(true)
+    expect(isReadOnly(proxyObj)).toBe(true)
     expect(isReadOnly(proxyObj.foo)).toBe(false)
   })
+
 })

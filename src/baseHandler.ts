@@ -21,15 +21,16 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
     if (options.shallowReadOnly) {
       return result
     }
+    
+    if (!isReadOnly) {
+      track(org, key)
+    }
 
     if (isObject(result)) {
       return isReadOnly ? readOnly(result) : reactive(result)
     }
     
 
-    if (!isReadOnly) {
-      track(org, key)
-    }
     return result
   }
 }
