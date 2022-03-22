@@ -13,7 +13,7 @@ describe('computed', () => {
 
   })
 
-  test.skip('computed->lazy', () => {
+  test('computed->lazy', () => {
     const user = reactive({ age: 1 })
     
     const getter = jest.fn(() => {
@@ -32,14 +32,17 @@ describe('computed', () => {
     value.value // get
     expect(getter).toHaveBeenCalledTimes(1)
     
-    // user.age = 2
-    // expect(getter).toHaveBeenCalledTimes(2)
+    // 依赖变更,不会重新执行getter但会更改内部的dirty
+    user.age = 2
+    expect(getter).toHaveBeenCalledTimes(1)
 
-
-
-
-
-
+    // 获取值时，触发更改
+    expect(value.value).toBe(2)
+    expect(getter).toHaveBeenCalledTimes(2)
+    
+    // 再次获取，值没变不会重新生成
+    value.value
+    expect(getter).toHaveBeenCalledTimes(2)
 
   })
 })
