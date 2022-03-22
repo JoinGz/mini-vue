@@ -7,7 +7,7 @@ import { isObject } from "./shared/utils"
 
 // 抽离get, set
 function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: boolean} = {}) {
-  return function get(org: Obj, key: keyof Obj) {
+  return function get<T extends object>(org: T, key: keyof T) {
 
     if (key === ReactiveFlags['IS_REACTIVE']) {
       return !isReadOnly
@@ -36,7 +36,7 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
 }
 
 function createSet() {
-  return function (org: Obj, key: keyof Obj, value: any) {
+  return function <T extends object>(org: T, key: keyof T, value: any) {
     const reuslt = Reflect.set(org, key, value)
     trigger(org, key)
     return reuslt
@@ -55,7 +55,7 @@ export const multipleHandler = {
 
 export const readonlyHandler = {
   get: readOnlyGetter,
-  set: function (org: Obj, key: keyof Obj, value: any) {
+  set: function <T extends object>(org: T, key: keyof T, value: any) {
     console.warn(`readonly --> no set!`, org)
     return true
   }

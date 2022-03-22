@@ -4,7 +4,7 @@ class ComputedRefImpl {
   private _fn: () => any
   private _dirty: boolean
   private _value: any
-  private _effect: any
+  private _effect: ReactiveEffect
 
   constructor(fn: () => any) {
     this._fn = fn

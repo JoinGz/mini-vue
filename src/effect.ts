@@ -3,6 +3,13 @@ type effectOptions = {
   stop?: () => void,
   [key: string]: any
 }
+
+// 函数，函数有对象的写法
+type ReactiveEffectRunner<T = any> = {
+  (): T,
+  _effect: ReactiveEffect
+}
+
 let activeEffect: ReactiveEffect
 let shouldTrack: boolean;
 export class ReactiveEffect {
@@ -11,7 +18,7 @@ export class ReactiveEffect {
   deps: Set<any>
   active = true
 
-  constructor(fn: () => void, options?: effectOptions) {
+  constructor(fn: () => any, options?: effectOptions) {
     this.deps = new Set()
     this._fn = fn
     this.options = options as effectOptions
@@ -60,7 +67,7 @@ export class ReactiveEffect {
 }
 
 export function effect(
-  fn: () => void,
+  fn: () => any,
   options?: effectOptions
 ): () => any {
   // 面向对象编程
@@ -68,8 +75,8 @@ export function effect(
 
   _effect.run()
 
-  const runner = _effect.run.bind(_effect)
-  runner._effect = _effect
+  const runner = _effect.run.bind(_effect) as ReactiveEffectRunner
+  runner._effect = _effect 
 
   return runner
 }
@@ -129,6 +136,6 @@ export function triggerEffects(deps: any) {
   }
 }
 
-export function stop(fn: any) {
+export function stop(fn: ReactiveEffectRunner) {
   fn._effect.stop()
 }
