@@ -5,7 +5,7 @@ type effectOptions = {
 }
 let activeEffect: ReactiveEffect
 let shouldTrack: boolean;
-class ReactiveEffect {
+export class ReactiveEffect {
   _fn: () => any
   options: effectOptions
   deps: Set<any>
@@ -19,18 +19,22 @@ class ReactiveEffect {
 
   run() {
 
+    let result;
+
     if (this.active) {
       activeEffect = this
       shouldTrack = true
-      this._fn()
+      result = this._fn()
       shouldTrack = false // 因为是全局变量，这里做复原操作
+    } else {
+      result = this._fn()
     }
     
 
-    const fn: any = this._fn.bind(this)
-    fn._effect =  this
+    return result
 
-    return fn
+    // runner 不在run里面返回，而是返回用户函数的返回值
+    // runner 放在 effect 里面返回，这个 run 就多一个返回值功能
   }
 
   stop() {
@@ -60,9 +64,14 @@ export function effect(
   options?: effectOptions
 ): () => any {
   // 面向对象编程
-  const _effect = new ReactiveEffect(fn, options)
+  const _effect: any = new ReactiveEffect(fn, options)
 
-  return _effect.run()
+  _effect.run()
+
+  const runner = _effect.run.bind(_effect)
+  runner._effect = _effect
+
+  return runner
 }
 
 const trackMap = new Map()
