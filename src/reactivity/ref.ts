@@ -1,7 +1,7 @@
-import { Obj } from "../types/base"
+import { Obj } from "../../types/base"
 import { isTracking, trackEffect, triggerEffects } from "./effect"
 import { reactive } from "./reactive"
-import { hasChanged, isObject } from "./shared/utils"
+import { hasChanged, isObject } from "../shared/utils"
 
 type refImp = string | number | Obj
 

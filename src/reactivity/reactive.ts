@@ -1,4 +1,4 @@
-import { Obj, ReactiveFlags } from '../types/base'
+import { Obj, ReactiveFlags } from '../../types/base'
 import { multipleHandler, readonlyHandler, shallowReadonlyHandler } from './baseHandler'
 
 export function reactive(row: Obj): Obj {

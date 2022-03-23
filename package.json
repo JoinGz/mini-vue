@@ -2,12 +2,14 @@
   "name": "mini-vue",
   "version": "1.0.0",
   "description": "study vue3",
-  "main": "index.js",
+  "main": "lib/index.cjs.js",
+  "module": "lib/index.esm.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "rollup -c rollup.config.js"
   },
   "keywords": [
     "vue3",
@@ -22,6 +24,9 @@
     "@types/jest": "^27.4.1",
     "babel-jest": "^27.5.1",
     "jest": "^27.5.1",
+    "rollup": "^2.70.1",
+    "rollup-plugin-typescript2": "^0.31.2",
+    "tslib": "^2.3.1",
     "typescript": "^4.6.2"
   }
 }

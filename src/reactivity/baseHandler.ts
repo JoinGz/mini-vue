@@ -1,9 +1,9 @@
 // 重构优化
 
 import { track, trigger } from "./effect"
-import { Obj, ReactiveFlags } from '../types/base'
+import { ReactiveFlags } from '../../types/base'
 import { reactive, readOnly } from "./reactive"
-import { isObject } from "./shared/utils"
+import { isObject } from "../shared/utils"
 
 // 抽离get, set
 function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: boolean} = {}) {

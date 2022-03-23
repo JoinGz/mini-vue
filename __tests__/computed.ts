@@ -1,5 +1,5 @@
-import { computed } from "../src/computed"
-import { reactive } from "../src/reactive"
+import { computed } from "../src/reactivity/computed"
+import { reactive } from "../src/reactivity/reactive"
 
 describe('computed', () => {
   test('happy path', () => {
