@@ -1,5 +1,5 @@
-import { effect } from '../src/effect'
-import {isProxy, isReactive, isReadOnly, reactive, readOnly, shallowReadOnly} from '../src/reactive'
+import { effect } from '../src/reactivity/effect'
+import {isProxy, isReactive, isReadOnly, reactive, readOnly, shallowReadOnly} from '../src/reactivity/reactive'
 
 describe('reactive', () => {
   test('happy path', () => {

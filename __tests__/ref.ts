@@ -1,6 +1,6 @@
-import { effect } from "../src/effect";
-import { reactive } from "../src/reactive";
-import { isRef, proxyRef, proxyRef_my, ref, unRef } from "../src/ref";
+import { effect } from "../src/reactivity/effect";
+import { reactive } from "../src/reactivity/reactive";
+import { isRef, proxyRef, proxyRef_my, ref, unRef } from "../src/reactivity/ref";
 
 describe('ref', () => {
 

@@ -31,7 +31,7 @@ export function setupComponent(instance: any) {
 }
 
 function setupStatefulComponent(instance: any) {
-  const { setup } = instance.type.setup
+  const { setup } = instance.type
 
   const setupBack = setup()
 

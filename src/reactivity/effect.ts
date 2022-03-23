@@ -69,7 +69,7 @@ export class ReactiveEffect {
 export function effect(
   fn: () => any,
   options?: effectOptions
-): () => any {
+): ReactiveEffectRunner {
   // 面向对象编程
   const _effect: any = new ReactiveEffect(fn, options)
 
