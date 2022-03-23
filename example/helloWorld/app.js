@@ -1,3 +1,5 @@
+import { h } from '../../lib/index.esm.js'
+
 export const helloWorld = {
   name: 'helloWorld',
   setup() {},

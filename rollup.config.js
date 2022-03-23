@@ -5,12 +5,12 @@ export default {
   input: 'src/index.ts',
   output: [
     {
-      file: pkg.main, // package.json 中 "module": "lib/index.esm.js"
+      file: pkg.module, // package.json 中 "module": "lib/index.esm.js"
       format: 'esm',
       sourcemap: true,
     },
     {
-      file: pkg.module, // package.json 中 "main": "lib/index.cjs.js",
+      file: pkg.main, // package.json 中 "main": "lib/index.cjs.js",
       format: 'cjs',
       sourcemap: true,
     },
