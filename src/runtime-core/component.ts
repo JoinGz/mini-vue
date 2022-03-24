@@ -1,4 +1,5 @@
 import { isObject } from '../shared/utils'
+import { publicInstanceProxyHandler } from './componentsPublicInstance'
 
 export function processComponent(vnode: any, dom: any) {
   mountComponent(vnode, dom)
@@ -32,6 +33,8 @@ export function setupComponent(instance: any) {
 
 function setupStatefulComponent(instance: any) {
   const { setup } = instance.type
+
+  instance.proxy = new Proxy({_: instance}, publicInstanceProxyHandler)
 
   const setupBack = setup()
 

@@ -27,16 +27,19 @@ function mountComponent(vnode: any, dom: any) {
 }
 
 function setupRenderEffect(instance: any, dom: any) {
-  const subTree = instance.render()
+  const subTree = instance.render.call(instance.proxy)
 
   path(subTree, dom)
+
+  instance.vnode.$el = subTree.$el
+
 }
 function processElement(vnode: any, dom: any) {
   mountElement(vnode, dom)
 }
 
 function mountElement(vnode: any, dom: any) {
-  const el = document.createElement(vnode.type)
+  const el = vnode.$el = document.createElement(vnode.type)
 
   const { props } = vnode
 
