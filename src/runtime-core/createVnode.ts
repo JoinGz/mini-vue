@@ -7,7 +7,7 @@ export function createVnode(rootCompontent: object, props?: props, children?: ch
     type: rootCompontent, 
     props,
     children,
-    $el: new Element,
+    $el: undefined,
     shapeFlag: getShapeFlags(rootCompontent)
   }
 

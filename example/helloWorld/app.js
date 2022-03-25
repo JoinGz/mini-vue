@@ -1,15 +1,17 @@
 import { h } from '../../lib/index.esm.js'
 
-
 export const helloWorld = {
   name: 'helloWorld',
-  setup () {
+  setup() {
     return {
-      msg: 'p-one'
+      msg: 'p-one',
     }
   },
   render() {
-    return h('div', { id: 'hello' }, [
+    return h('div', {
+      id: 'hello',
+      onClick: () => console.log('clicked')
+    }, [
       h('p', null, 'hi, mini-vue!'),
       h('div', null, [h('p', null, this.msg), h('p', null, 'p-two')]),
     ])
