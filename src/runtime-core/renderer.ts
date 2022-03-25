@@ -1,27 +1,27 @@
+import { instance, vnode } from '../../types/base'
 import { ShapeFlags } from '../shared/shapeFlags'
-import { isObject } from '../shared/utils'
 import { createComponentInstance, setupComponent } from './component'
 
-export function render(vnode: any, dom: any) {
+export function render(vnode: vnode, dom: Element) {
   path(vnode, dom)
 }
-function path(vnode: any, dom: any) {
+function path(vnode: vnode, dom: Element) {
   // vnode 是组件，还是对象
 
   const { shapeFlag } = vnode
   
-  if (shapeFlag & ShapeFlags.ELEMENT) {
+  if (shapeFlag! & ShapeFlags.ELEMENT) {
     processElement(vnode, dom)
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+  } else if (shapeFlag! & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, dom)
   }
 }
 
-function processComponent(vnode: any, dom: any) {
+function processComponent(vnode: vnode, dom: Element) {
   mountComponent(vnode, dom)
 }
 
-function mountComponent(vnode: any, dom: any) {
+function mountComponent(vnode: vnode, dom: Element) {
   const instance = createComponentInstance(vnode)
 
   setupComponent(instance)
@@ -29,20 +29,20 @@ function mountComponent(vnode: any, dom: any) {
   setupRenderEffect(instance, dom)
 }
 
-function setupRenderEffect(instance: any, dom: any) {
-  const subTree = instance.render.call(instance.proxy)
+function setupRenderEffect(instance: instance, dom: Element) {
+  const subTree = instance.render!.call(instance.proxy)
 
   path(subTree, dom)
 
   instance.vnode.$el = subTree.$el
 
 }
-function processElement(vnode: any, dom: any) {
+function processElement(vnode: vnode, dom: Element) {
   mountElement(vnode, dom)
 }
 
-function mountElement(vnode: any, dom: any) {
-  const el = vnode.$el = document.createElement(vnode.type)
+function mountElement(vnode: vnode, dom: Element) {
+  const el = vnode.$el = document.createElement(vnode.type as string)
 
   const { props } = vnode
 
@@ -52,12 +52,12 @@ function mountElement(vnode: any, dom: any) {
   }
 
   const { children, shapeFlag } = vnode
-  if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-    children.forEach((v: any) => {
+  if (shapeFlag! & ShapeFlags.ARRAY_CHILDREN) {
+    (children as vnode[]).forEach((v: vnode) => {
       path(v, el)
     })
   } else {
-    el.innerText = children
+    el.innerText = children as string
   }
 
   dom.append(el)

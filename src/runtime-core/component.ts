@@ -1,11 +1,12 @@
 import { isObject } from '../shared/utils'
 import { publicInstanceProxyHandler } from './componentsPublicInstance'
+import { vnode, instance, Obj } from '../../types/base'
 
-export function processComponent(vnode: any, dom: any) {
+export function processComponent(vnode: vnode, dom: Element) {
   mountComponent(vnode, dom)
 }
 
-function mountComponent(vnode: any, dom: any) {
+function mountComponent(vnode: vnode, dom: Element) {
   const instance = createComponentInstance(vnode)
 
   setupComponent(instance)
@@ -13,11 +14,11 @@ function mountComponent(vnode: any, dom: any) {
   return instance
 }
 
-export function createComponentInstance(vnode: any) {
+export function createComponentInstance(vnode: vnode) {
   // initProps
   // initSlots
-  const instance: any = {
-    type: vnode.type,
+  const instance: instance = {
+    type: vnode.type as {type: vnode},
     vnode,
     setupState: {},
   }
@@ -25,25 +26,25 @@ export function createComponentInstance(vnode: any) {
   return instance
 }
 
-export function setupComponent(instance: any) {
+export function setupComponent(instance: instance) {
   // init props
   // init slots
   setupStatefulComponent(instance)
 }
 
-function setupStatefulComponent(instance: any) {
+function setupStatefulComponent(instance: instance) {
   const { setup } = instance.type
 
   instance.proxy = new Proxy({_: instance}, publicInstanceProxyHandler)
 
-  const setupBack = setup()
+  const setupBack = setup!()
 
   handleSetupResult(instance, setupBack)
 }
 
-function handleSetupResult(instance: any, setupBack: any) {
+function handleSetupResult(instance: instance, setupBack:  Obj | ( () => vnode  )) {
   if (typeof setupBack === 'function') {
-    instance.render = setupBack
+    instance.render  = setupBack as () => vnode
   } else if (isObject(setupBack)) {
     instance.setupState = setupBack
   }
@@ -51,7 +52,7 @@ function handleSetupResult(instance: any, setupBack: any) {
   finishComponentSetup(instance)
 }
 
-function finishComponentSetup(instance: any) {
+function finishComponentSetup(instance: instance) {
   if (instance.type.render) {
     instance.render = instance.type.render
   }

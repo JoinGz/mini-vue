@@ -1,12 +1,13 @@
 import { ShapeFlags } from "../shared/shapeFlags"
 import { isObject } from "../shared/utils"
+import { props, children, vnode } from "../../types/base"
 
-export function createVnode(rootCompontent: object, props?: any, children?: any,) {
-  const vnode = {
+export function createVnode(rootCompontent: object, props?: props, children?: children,) {
+  const vnode: vnode = {
     type: rootCompontent, 
     props,
     children,
-    $el: null,
+    $el: new Element,
     shapeFlag: getShapeFlags(rootCompontent)
   }
 

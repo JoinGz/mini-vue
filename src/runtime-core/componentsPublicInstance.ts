@@ -1,5 +1,7 @@
-const publicPropertiesMaps: any = {
-  $el(i: any) {
+import { instance, Obj } from "../../types/base"
+
+const publicPropertiesMaps: Obj = {
+  $el(i: instance) {
     return i.vnode.$el
   },
 }

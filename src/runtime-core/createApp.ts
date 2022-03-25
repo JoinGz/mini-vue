@@ -3,7 +3,7 @@ import { render } from './renderer'
 
 export function createApp<T extends object>(rootCompontent: T) {
   return {
-    mount: (dom: any) => {
+    mount: (dom: Element) => {
       const vnode = createVnode(rootCompontent)
 
       render(vnode, dom)
