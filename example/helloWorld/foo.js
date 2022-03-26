@@ -1,10 +1,22 @@
 import { h } from "../../lib/index.esm.js"
 
 export default {
-  setup (props) {
-    console.log(props)
+  setup (props, {emit}) {
+    console.log(`props: ${props}`)
+    const click = () => {
+      console.log('clicked-foo');
+      emit('add', 1, 2)
+      emit('add-foo', 1, 2)
+    }
+    return {
+      click
+    }
   },
   render () {
-    return h('div', null, 'foo:' + this.count)
+    const p = h('p', null, 'foo:' + this.count)
+    const btn = h('button', {
+      onClick: this.click
+    }, 'emitBtn')
+    return h('div', null, [p, btn])
   }
 }

@@ -9,13 +9,24 @@ export const helloWorld = {
     }
   },
   render() {
-    return h('div', {
-      id: 'hello',
-      onClick: () => console.log('clicked')
-    }, [
-      h('p', null, 'hi, mini-vue!'),
-      h('div', null, [h('p', null, this.msg), h('p', null, 'p-two')]),
-      h(foo, {count: 1}, )
-    ])
+    return h(
+      'div',
+      {
+        id: 'hello',
+      },
+      [
+        h('p', { onClick: () => console.log('clicked') }, 'hi, mini-vue!'),
+        h('div', null, [h('p', null, this.msg), h('p', null, 'p-two')]),
+        h(foo, {
+          count: 1,
+          onAdd() {
+            console.log(`emit->add`, ...arguments)
+          },
+          onAddFoo() {
+            console.log(`emit->add-foo`, ...arguments)
+          },
+        }),
+      ]
+    )
   },
 }

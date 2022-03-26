@@ -22,9 +22,10 @@ export type vnode = {
 export type instance = {
   vnode: vnode,
   type: vnode,
-  props?: object, // 这种后面一定会增加的属性咋个定义呢？目前是定义可选
+  props?: Obj, // 这种后面一定会增加的属性咋个定义呢？目前是定义可选
   render?: () => vnode,
   setupState: Obj,
   $el?: Element,
-  proxy?: any
+  proxy?: any,
+  emit?: (...arg: any[])=>any
 }
