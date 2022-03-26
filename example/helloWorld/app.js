@@ -1,4 +1,5 @@
 import { h } from '../../lib/index.esm.js'
+import foo from './foo.js'
 
 export const helloWorld = {
   name: 'helloWorld',
@@ -14,6 +15,7 @@ export const helloWorld = {
     }, [
       h('p', null, 'hi, mini-vue!'),
       h('div', null, [h('p', null, this.msg), h('p', null, 'p-two')]),
+      h(foo, {count: 1}, )
     ])
   },
 }

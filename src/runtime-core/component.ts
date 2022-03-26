@@ -1,22 +1,10 @@
 import { isObject } from '../shared/utils'
 import { publicInstanceProxyHandler } from './componentsPublicInstance'
 import { vnode, instance, Obj } from '../../types/base'
+import { shallowReadOnly } from '../reactivity/reactive'
 
-export function processComponent(vnode: vnode, dom: Element) {
-  mountComponent(vnode, dom)
-}
-
-function mountComponent(vnode: vnode, dom: Element) {
-  const instance = createComponentInstance(vnode)
-
-  setupComponent(instance)
-
-  return instance
-}
 
 export function createComponentInstance(vnode: vnode) {
-  // initProps
-  // initSlots
   const instance: instance = {
     type: vnode.type as {type: vnode},
     vnode,
@@ -27,8 +15,6 @@ export function createComponentInstance(vnode: vnode) {
 }
 
 export function setupComponent(instance: instance) {
-  // init props
-  // init slots
   setupStatefulComponent(instance)
 }
 
@@ -37,7 +23,7 @@ function setupStatefulComponent(instance: instance) {
 
   instance.proxy = new Proxy({_: instance}, publicInstanceProxyHandler)
 
-  const setupBack = setup!()
+  const setupBack = setup!(shallowReadOnly(instance.props!))
 
   handleSetupResult(instance, setupBack)
 }
