@@ -26,6 +26,7 @@ export type instance = {
   render?: () => vnode,
   setupState: Obj,
   $el?: Element,
+  $slot?: any,
   proxy?: any,
   emit?: (...arg: any[])=>any
 }

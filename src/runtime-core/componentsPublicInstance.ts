@@ -5,6 +5,9 @@ const publicPropertiesMaps: Obj = {
   $el(i: instance) {
     return i.vnode.$el
   },
+  $slot(i: instance) {
+    return i.$slot
+  },
 }
 
 export const publicInstanceProxyHandler = {

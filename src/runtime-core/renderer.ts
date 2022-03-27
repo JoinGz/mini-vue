@@ -2,6 +2,7 @@ import { instance, vnode } from '../../types/base'
 import { ShapeFlags } from '../shared/shapeFlags'
 import { createComponentInstance, setupComponent } from './component'
 import { initProps } from './componentProps'
+import { initSlots } from './componentSlot'
 
 export function render(vnode: vnode, dom: Element) {
   path(vnode, dom)
@@ -26,6 +27,8 @@ function mountComponent(vnode: vnode, dom: Element) {
   const instance = createComponentInstance(vnode)
   
   initProps(instance, vnode.props)
+  
+  initSlots(instance, vnode.children)
 
   setupComponent(instance)
 

@@ -2,7 +2,7 @@ import { ShapeFlags } from "../shared/shapeFlags"
 import { isObject } from "../shared/utils"
 import { props, children, vnode } from "../../types/base"
 
-export function createVnode(rootCompontent: object, props?: props, children?: children,) {
+export function createVnode(rootCompontent: object | string, props?: props, children?: children,) {
   const vnode: vnode = {
     type: rootCompontent, 
     props,
@@ -16,11 +16,17 @@ export function createVnode(rootCompontent: object, props?: props, children?: ch
   } else if (Array.isArray(children)) {
     vnode.shapeFlag! |= ShapeFlags.ARRAY_CHILDREN
   }
+  
+  if (vnode.shapeFlag! & ShapeFlags.STATEFUL_COMPONENT) {
+    if (isObject(children)) {
+      vnode.shapeFlag! |= ShapeFlags.SLOT_CHILDREN
+    }
+  }
 
   return vnode
 }
 
-function getShapeFlags(rootCompontent: object) {
+function getShapeFlags(rootCompontent: object | string) {
   if (typeof rootCompontent === 'string') {
     return ShapeFlags.ELEMENT
   } else if (isObject(rootCompontent)) {
