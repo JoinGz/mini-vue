@@ -5,15 +5,15 @@ export enum ReactiveFlags {
   "IS_READONLY" = "__v_isReadonly"
 }
 
-export type props = Obj & { id: string, class: string[] | string }
+export type props = Obj & { id?: string, class?: string[] | string }
 
 export type children = vnode[] |  string
 
 export type vnode = {
-  type: Obj | string,
+  type: Obj | string | symbol,
   props?: props,
   children?: children,
-  $el?: Element,
+  $el?: Element | Text,
   shapeFlag?: number,
   render?: () => vnode,
   setup?: (...arg: any[]) => vnode

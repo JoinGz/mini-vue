@@ -1,6 +1,5 @@
 import { instance, Obj } from "../../types/base";
 import { ShapeFlags } from "../shared/shapeFlags";
-import { renderSlot } from "./helps/renderSolt";
 
 export function initSlots(instance: instance, children: any) {
 
