@@ -4,6 +4,7 @@ import { vnode, instance, Obj } from '../../types/base'
 import { shallowReadOnly } from '../reactivity/reactive'
 import { emit } from './componentEmit'
 
+let currentInstance: instance | null = null;
 
 export function createComponentInstance(vnode: vnode) {
   const instance: instance = {
@@ -26,7 +27,9 @@ function setupStatefulComponent(instance: instance) {
 
   instance.proxy = new Proxy({_: instance}, publicInstanceProxyHandler)
 
+  setCurrentInstance(instance)
   const setupBack = setup!(shallowReadOnly(instance.props!), {emit: instance.emit})
+  setCurrentInstance(null)
 
   handleSetupResult(instance, setupBack)
 }
@@ -45,4 +48,12 @@ function finishComponentSetup(instance: instance) {
   if (instance.type.render) {
     instance.render = instance.type.render
   }
+}
+
+export function getCurrentInstance(){
+  return currentInstance
+}
+
+export function setCurrentInstance(instance: typeof currentInstance) {
+  currentInstance = instance
 }
