@@ -1,16 +1,18 @@
 import { isObject } from '../shared/utils'
 import { publicInstanceProxyHandler } from './componentsPublicInstance'
-import { vnode, instance, Obj } from '../../types/base'
+import { vnode, instance, Obj, parentInstance } from '../../types/base'
 import { shallowReadOnly } from '../reactivity/reactive'
 import { emit } from './componentEmit'
 
 let currentInstance: instance | null = null;
 
-export function createComponentInstance(vnode: vnode) {
+export function createComponentInstance(vnode: vnode, parentInstance: parentInstance) {
   const instance: instance = {
     type: vnode.type as {type: vnode},
     vnode,
     setupState: {},
+    parent: parentInstance,
+    provide: parentInstance ? parentInstance.provide : {}
   }
 
   instance.emit = emit.bind(null, instance)

@@ -28,5 +28,9 @@ export type instance = {
   $el?: Element,
   $slot?: any,
   proxy?: any,
-  emit?: (...arg: any[])=>any
+  emit?: (...arg: any[]) => any,
+  parent: instance | null,
+  provide: Obj
 }
+
+export type parentInstance = instance | null 

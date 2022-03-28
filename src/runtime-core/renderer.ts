@@ -1,4 +1,4 @@
-import { instance, vnode } from '../../types/base'
+import { instance, vnode, parentInstance } from '../../types/base'
 import { ShapeFlags } from '../shared/shapeFlags'
 import { createComponentInstance, setupComponent } from './component'
 import { initProps } from './componentProps'
@@ -6,9 +6,9 @@ import { initSlots } from './componentSlot'
 import { Fragment, Text } from './createVnode'
 
 export function render(vnode: vnode, dom: Element) {
-  path(vnode, dom)
+  patch(vnode, dom, null)
 }
-function path(vnode: vnode, dom: Element) {
+function patch(vnode: vnode, dom: Element, parentInstance: parentInstance) {
   // vnode 是组件，还是对象
 
 
@@ -16,7 +16,7 @@ function path(vnode: vnode, dom: Element) {
   
   switch (type) {
     case Fragment:
-        processFragment(vnode, dom)
+        processFragment(vnode, dom, parentInstance)
       break;
     
     case Text:
@@ -25,21 +25,21 @@ function path(vnode: vnode, dom: Element) {
   
     default:
         if (shapeFlag! & ShapeFlags.ELEMENT) {
-          processElement(vnode, dom)
+          processElement(vnode, dom, parentInstance)
         } else if (shapeFlag! & ShapeFlags.STATEFUL_COMPONENT) {
-          processComponent(vnode, dom)
+          processComponent(vnode, dom, parentInstance)
         }
       break;
   }
 
 }
 
-function processComponent(vnode: vnode, dom: Element) {
-  mountComponent(vnode, dom)
+function processComponent(vnode: vnode, dom: Element, parentInstance: parentInstance) {
+  mountComponent(vnode, dom, parentInstance)
 }
 
-function mountComponent(vnode: vnode, dom: Element) {
-  const instance = createComponentInstance(vnode)
+function mountComponent(vnode: vnode, dom: Element, parentInstance: parentInstance) {
+  const instance = createComponentInstance(vnode, parentInstance)
   
   initProps(instance, vnode.props)
   
@@ -53,16 +53,16 @@ function mountComponent(vnode: vnode, dom: Element) {
 function setupRenderEffect(instance: instance, dom: Element) {
   const subTree = instance.render!.call(instance.proxy)
 
-  path(subTree, dom)
+  patch(subTree, dom, instance)
 
   instance.vnode.$el = subTree.$el
 
 }
-function processElement(vnode: vnode, dom: Element) {
-  mountElement(vnode, dom)
+function processElement(vnode: vnode, dom: Element, parentInstance:parentInstance) {
+  mountElement(vnode, dom, parentInstance)
 }
 
-function mountElement(vnode: vnode, dom: Element) {
+function mountElement(vnode: vnode, dom: Element, parentInstance: parentInstance) {
   const el = vnode.$el = document.createElement(vnode.type as string)
 
   const { props } = vnode
@@ -79,7 +79,7 @@ function mountElement(vnode: vnode, dom: Element) {
 
   const { children, shapeFlag } = vnode
   if (shapeFlag! & ShapeFlags.ARRAY_CHILDREN) {
-    mountChildren(children as vnode[], el)
+    mountChildren(children as vnode[], el, parentInstance)
   } else {
     el.innerText = children as string
   }
@@ -91,13 +91,13 @@ function isOn(key: string) {
   return /^on[A-Z]/.test(key)
 }
 
-function processFragment(vnode: vnode, dom: Element) {
-  mountChildren(vnode.children as vnode[], dom)
+function processFragment(vnode: vnode, dom: Element, parentInstance: parentInstance) {
+  mountChildren(vnode.children as vnode[], dom, parentInstance)
 }
 
-function mountChildren(children: vnode[], dom: Element) {
+function mountChildren(children: vnode[], dom: Element, parentInstance: parentInstance) {
   (children as vnode[]).forEach((v: vnode) => {
-    path(v, dom)
+    patch(v, dom, parentInstance)
   })
 }
 
