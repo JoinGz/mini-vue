@@ -30,7 +30,9 @@ export type instance = {
   proxy?: any,
   emit?: (...arg: any[]) => any,
   parent: instance | null,
-  provide: Obj
+  provide: Obj,
+  subTree?: vnode,
+  isMounted: boolean
 }
 
 export type parentInstance = instance | null 

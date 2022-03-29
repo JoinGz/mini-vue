@@ -3,6 +3,7 @@ import { publicInstanceProxyHandler } from './componentsPublicInstance'
 import { vnode, instance, Obj, parentInstance } from '../../types/base'
 import { shallowReadOnly } from '../reactivity/reactive'
 import { emit } from './componentEmit'
+import { proxyRef } from '../index'
 
 let currentInstance: instance | null = null;
 
@@ -12,7 +13,8 @@ export function createComponentInstance(vnode: vnode, parentInstance: parentInst
     vnode,
     setupState: {},
     parent: parentInstance,
-    provide: parentInstance ? parentInstance.provide : {}
+    provide: parentInstance ? parentInstance.provide : {},
+    isMounted: false
   }
 
   instance.emit = emit.bind(null, instance)
@@ -40,7 +42,7 @@ function handleSetupResult(instance: instance, setupBack:  Obj | ( () => vnode  
   if (typeof setupBack === 'function') {
     instance.render  = setupBack as () => vnode
   } else if (isObject(setupBack)) {
-    instance.setupState = setupBack
+    instance.setupState = proxyRef(setupBack)
   }
 
   finishComponentSetup(instance)
