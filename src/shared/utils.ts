@@ -23,3 +23,5 @@ export const camelize = (str: string) => {
     return first.toUpperCase()
   })
 }
+
+export const EMPTY_OBJ = {}

@@ -13,7 +13,7 @@ export type vnode = {
   type: Obj | string | symbol,
   props?: props,
   children?: children,
-  $el?: Element | Text,
+  $el?: HTMLElement | Text,
   shapeFlag?: number,
   render?: () => vnode,
   setup?: (...arg: any[]) => vnode
@@ -25,7 +25,7 @@ export type instance = {
   props?: Obj, // 这种后面一定会增加的属性咋个定义呢？目前是定义可选
   render?: () => vnode,
   setupState: Obj,
-  $el?: Element,
+  $el?: HTMLElement,
   $slot?: any,
   proxy?: any,
   emit?: (...arg: any[]) => any,

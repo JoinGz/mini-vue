@@ -9,13 +9,19 @@ const insert = (dom: HTMLElement, el: HTMLElement) => {
   dom.append(el)
 }
 
-const patchProps = (key: string, value: any, el: HTMLElement) => {
+const customsPropsHandler = (el: HTMLElement, key: string, preValue: any, nowValue: any) => {
+
   if (isOn(key)) {
     const eventName = key.slice(2).toLowerCase()
-    el.addEventListener(eventName, value)
+    el.addEventListener(eventName, nowValue)
   } else {
-    el.setAttribute(key, value)
+    if (nowValue == null) {
+      el.removeAttribute(key)
+    } else {
+      el.setAttribute(key, nowValue)
+    }
   }
+
 }
 
 function isOn(key: string) {
@@ -24,7 +30,7 @@ function isOn(key: string) {
 
 const domRender = createRender({
   createElement,
-  patchProps,
+  customsPropsHandler,
   insert,
 })
 
