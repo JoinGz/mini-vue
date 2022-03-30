@@ -9,7 +9,7 @@ let currentInstance: instance | null = null;
 
 export function createComponentInstance(vnode: vnode, parentInstance: parentInstance) {
   const instance: instance = {
-    type: vnode.type as {type: vnode},
+    type: vnode.type as {type: vnode, key: number| string},
     vnode,
     setupState: {},
     parent: parentInstance,

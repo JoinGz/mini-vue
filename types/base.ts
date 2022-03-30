@@ -16,7 +16,8 @@ export type vnode = {
   $el?: HTMLElement | Text,
   shapeFlag?: number,
   render?: () => vnode,
-  setup?: (...arg: any[]) => vnode
+  setup?: (...arg: any[]) => vnode,
+  key: number | string
 } 
 
 export type instance = {

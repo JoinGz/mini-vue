@@ -217,10 +217,55 @@ export function createRender(options: {
       if (oldShapeFlag! & ShapeFlags.STRING_CHILDREN) {
         setElementText(el, '')
         mountChildren(newVnode.children as vnode[], el, parentInstance)
+      } else {
+        console.log('diff array');
+        patchKeyChildren(oldVnode, newVnode , el , parentInstance)
       }
     }
 
 
+
+  }
+
+  function patchKeyChildren(oldVnode: vnode, newVnode: vnode, el: HTMLElement, parentInstance: parentInstance) {
+    
+    const {children: oldChildren} = oldVnode
+    const {children: newChildren} = newVnode
+
+    let i = 0;
+    let e1 = oldChildren!.length -1
+    let e2 = newChildren!.length -1
+
+    // 左端对比
+    // (a b) c
+    // (a b) d e
+    while (i <= e1 && 1 <= e2) {
+      if (isSameVnodeType(oldChildren![i] as vnode, newChildren![i] as vnode)) {
+        patch(oldChildren![i] as vnode, newChildren![i] as vnode, el, parentInstance)
+      } else {
+        break;
+      }
+      i++
+    }
+
+    console.log('左端的i: ' + i);
+    
+    // 右边对比
+    // a (b c)
+    // d e (b c)
+    // while (e1 >= i && e2 >= i) {
+    while (i<=e1 && i <= e2) {
+      if (isSameVnodeType(oldChildren![e1] as vnode, newChildren![e2] as vnode)) {
+        patch(oldChildren![e1] as vnode, newChildren![e2] as vnode, el, parentInstance)
+      } else {
+        break;
+      }
+      e1--;
+      e2--;
+    }
+    
+    console.log('右端的e1: ' + e1);
+    console.log('右端的e2: ' + e2);
 
   }
 
@@ -236,4 +281,10 @@ export function createRender(options: {
   }
 }
 
+
+
+
+function isSameVnodeType(oldVnode: vnode, newVnode: vnode) {
+  return oldVnode?.type === newVnode?.type && oldVnode.key === newVnode.key
+}
 
