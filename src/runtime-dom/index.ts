@@ -28,10 +28,26 @@ function isOn(key: string) {
   return /^on[A-Z]/.test(key)
 }
 
+const remove = (el: HTMLElement) => {
+  const parent = el.parentElement
+  if (parent) {
+    parent.removeChild(el)
+  }
+}
+
+const setElementText = (el: HTMLElement, value: string) => {
+  // const textNode = document.createTextNode(value)
+  // el.appendChild(textNode)
+
+  el.textContent = value
+}
+
 const domRender = createRender({
   createElement,
   customsPropsHandler,
   insert,
+  remove,
+  setElementText
 })
 
 export function createApp(arg: Obj) {

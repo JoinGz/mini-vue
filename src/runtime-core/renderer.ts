@@ -1,4 +1,4 @@
-import { instance, vnode, parentInstance, props } from '../../types/base'
+import { instance, vnode, parentInstance, props, children } from '../../types/base'
 import { effect } from '../reactivity/effect'
 import { ShapeFlags } from '../shared/shapeFlags'
 import { EMPTY_OBJ } from '../shared/utils'
@@ -11,9 +11,11 @@ import { Fragment, Text } from './createVnode'
 export function createRender(options: {
   createElement: (...arg: any[]) => any
   customsPropsHandler: (...arg: any[]) => any
-  insert: (...arg: any[]) => any
+  insert: (...arg: any[]) => any,
+  remove: (...arg: any[]) => any,
+  setElementText: (...arg: any[]) => any,
 }) {
-  const { customsPropsHandler, insert, createElement } = options
+  const { customsPropsHandler, insert, createElement, remove, setElementText } = options
 
   function render(vnode: vnode, dom: HTMLElement) {
     patch(null, vnode, dom, null)
@@ -162,12 +164,13 @@ export function createRender(options: {
     dom.appendChild(textNode)
   }
 
-  function patchElement(vnode1: vnode | null, vnode2: vnode, dom: HTMLElement, parentInstance: parentInstance) {
+  function patchElement(vnode1: vnode, vnode2: vnode, dom: HTMLElement, parentInstance: parentInstance) {
     const preProps = vnode1?.props || EMPTY_OBJ
     const nowProps = vnode2?.props || EMPTY_OBJ
   
     const el = (vnode2.$el = vnode1!.$el)
 
+    patchChildren(vnode1 , vnode2, el as HTMLElement, parentInstance)
     patchProps(el!, preProps, nowProps)
   
   }
@@ -195,6 +198,38 @@ export function createRender(options: {
 
   }
 
+  function patchChildren(oldVnode: vnode, newVnode: vnode, el: HTMLElement, parentInstance: parentInstance) {
+    
+    const { shapeFlag: oldShapeFlag } = oldVnode
+    const { shapeFlag: newShapeFlag } = newVnode
+    
+    // 当 老节点是数组节点 新节点是文本节点时
+    if (newShapeFlag! & ShapeFlags.STRING_CHILDREN) {
+      if (oldShapeFlag! & ShapeFlags.ARRAY_CHILDREN) {
+        // 删除老节点
+        unmountChildren(oldVnode.children!)
+      }
+      // 设置新节点。不是 array_children 就是 string_children
+      if (oldVnode.children !== newVnode.children) {
+        setElementText(el, newVnode.children)
+      }
+    } else {
+      if (oldShapeFlag! & ShapeFlags.STRING_CHILDREN) {
+        setElementText(el, '')
+        mountChildren(newVnode.children as vnode[], el, parentInstance)
+      }
+    }
+
+
+
+  }
+
+  function unmountChildren(children: children) {
+    for (let i = 0; i < children.length; i++) {
+      const vnode = children[i] as vnode;
+      remove(vnode.$el)
+    }
+  }
 
   return {
     createApp: createAppAPI(render),
