@@ -1,4 +1,4 @@
-import { instance, vnode, parentInstance, props, children } from '../../types/base'
+import { instance, vnode, parentInstance, props, children, Obj } from '../../types/base'
 import { effect } from '../reactivity/effect'
 import { ShapeFlags } from '../shared/shapeFlags'
 import { EMPTY_OBJ } from '../shared/utils'
@@ -312,7 +312,59 @@ export function createRender(options: {
 
 
     } else {
-      console.log('todo');
+      // a,b,(c,d),f,g
+      // a,b,(e,c),f,g
+      console.log('diff middle');
+      // 找出现在存在的key
+      const newVnodeKeysMap:Obj = {}
+
+      for (let j = i; j <= e2; j++) {
+        const vnode = newChildren![j] as vnode;
+        if (vnode.key) {
+          newVnodeKeysMap[vnode.key] = j
+        }
+      }
+
+      function getIndexFromKey(key: string | number) {
+        return newVnodeKeysMap[key]
+      }
+
+      // 在老的节点里面遍历
+
+      let currentIndex;
+
+      const toBePatchedNum = e2 - i + 1
+      let patchedNum = 0
+
+      for (let j = i; j <= e1; j++) {
+
+        // 如果新增的变化已经都patch过了，剩余的老的就可以全部删除了
+        if (patchedNum >= toBePatchedNum) {
+          remove((oldChildren![j] as vnode).$el)
+          continue;
+        }
+
+        const vnode = oldChildren![j] as vnode
+        if (vnode.key) {
+          currentIndex = getIndexFromKey(vnode.key)
+        } else {
+          for (let k = 0; k < e2; k++) {
+            const vnode = newChildren![k] as vnode
+            if (isSameVnodeType(vnode, vnode)) {
+              currentIndex = j;
+              break;
+            }
+          }
+        }
+
+        if (!currentIndex) {
+          remove((oldChildren![j] as vnode).$el)
+        } else {
+          patch(oldChildren![j] as vnode, newChildren![currentIndex] as vnode, el, parentInstance, null)
+          patchedNum++
+        }
+      }
+
       
     }
 
