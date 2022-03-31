@@ -5,8 +5,9 @@ const createElement = (type: string) => {
   return document.createElement(type)
 }
 
-const insert = (dom: HTMLElement, el: HTMLElement) => {
-  dom.append(el)
+const insert = (dom: HTMLElement, el: HTMLElement, anchor: HTMLElement | null) => {
+  // dom.append(el)
+  dom.insertBefore(el, anchor)
 }
 
 const customsPropsHandler = (el: HTMLElement, key: string, preValue: any, nowValue: any) => {
