@@ -1,5 +1,6 @@
 import { instance, vnode, parentInstance, props, children, Obj } from '../../types/base'
 import { effect } from '../reactivity/effect'
+import { getSequence } from '../shared/getSequence'
 import { ShapeFlags } from '../shared/shapeFlags'
 import { EMPTY_OBJ } from '../shared/utils'
 import { createComponentInstance, setupComponent } from './component'
@@ -316,7 +317,16 @@ export function createRender(options: {
       // a,b,(e,c),f,g
       console.log('diff middle');
       // 找出现在存在的key
-      const newVnodeKeysMap:Obj = {}
+      const newVnodeKeysMap: Obj = {}
+      // 初始化映射
+      const e2BeginIndex = e2 - i
+      const newIndexToOldIndex = new Array(e2BeginIndex)
+
+      // a,b,(c,d,e),f,g
+      // a,b,(e,c,d),f,g
+      for (let i = 0; i <= e2BeginIndex; i++) {
+        newIndexToOldIndex[i] = 0
+      }
 
       for (let j = i; j <= e2; j++) {
         const vnode = newChildren![j] as vnode;
@@ -360,10 +370,31 @@ export function createRender(options: {
         if (!currentIndex) {
           remove((oldChildren![j] as vnode).$el)
         } else {
+          // 在更新新节点对应老节点位置信息时 j + 1 的目的: newIndexToOldIndex初始化的时候值为0，所有如果值没有改变表示
+          // j 可能为零。newIndexToOldIndex为零时表示新节点在老节点不存在，需要新建。是有特殊含义的所以有映射关系的不能为零
+          newIndexToOldIndex[currentIndex - e2BeginIndex] = j + 1
           patch(oldChildren![j] as vnode, newChildren![currentIndex] as vnode, el, parentInstance, null)
           patchedNum++
         }
       }
+
+      const increasingNewIndexSequence = getSequence(newIndexToOldIndex)
+
+      let sequenceIndex = increasingNewIndexSequence.length - 1;
+
+      // 也可以把 N = toBePatchedNum，就可以少些加法操作
+      for (let N = e2BeginIndex; N >= 0; N--) {
+        if (sequenceIndex<0 || N !== increasingNewIndexSequence[sequenceIndex]) {
+          const nextIndex = N + 1
+          const nextChild = newChildren![nextIndex + e2BeginIndex] ? (newChildren![nextIndex + e2BeginIndex] as vnode).$el : null
+          insert(el, (newChildren![N+ e2BeginIndex] as vnode).$el, nextChild)
+          console.log('需要移动');
+        } else {
+          sequenceIndex--
+        }
+        
+      }
+      // console.log(increasingNewIndexSequence)
 
       
     }
