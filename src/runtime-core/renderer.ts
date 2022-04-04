@@ -313,18 +313,22 @@ export function createRender(options: {
 
 
     } else {
+      // 0 1  2 3  4 5
       // a,b,(c,d),f,g
       // a,b,(e,c),f,g
       console.log('diff middle');
       // 找出现在存在的key
+      const toBePatchedNum = e2 - i + 1
       const newVnodeKeysMap: Obj = {}
       // 初始化映射
-      const e2BeginIndex = e2 - i
-      const newIndexToOldIndex = new Array(e2BeginIndex)
+      const newIndexToOldIndex = new Array(toBePatchedNum)
+      // 判断是否需要最长递增子序列
+      let maxIndex = 0
+      let needMove = false
 
       // a,b,(c,d,e),f,g
       // a,b,(e,c,d),f,g
-      for (let i = 0; i <= e2BeginIndex; i++) {
+      for (let i = 0; i < toBePatchedNum; i++) {
         newIndexToOldIndex[i] = 0
       }
 
@@ -343,7 +347,6 @@ export function createRender(options: {
 
       let currentIndex;
 
-      const toBePatchedNum = e2 - i + 1
       let patchedNum = 0
 
       for (let j = i; j <= e1; j++) {
@@ -370,27 +373,41 @@ export function createRender(options: {
         if (!currentIndex) {
           remove((oldChildren![j] as vnode).$el)
         } else {
+
+          if (currentIndex >= maxIndex) {
+            maxIndex = currentIndex
+          } else {
+            needMove = true
+          }
+
           // 在更新新节点对应老节点位置信息时 j + 1 的目的: newIndexToOldIndex初始化的时候值为0，所有如果值没有改变表示
           // j 可能为零。newIndexToOldIndex为零时表示新节点在老节点不存在，需要新建。是有特殊含义的所以有映射关系的不能为零
-          newIndexToOldIndex[currentIndex - e2BeginIndex] = j + 1
+          newIndexToOldIndex[currentIndex - i] = j + 1
           patch(oldChildren![j] as vnode, newChildren![currentIndex] as vnode, el, parentInstance, null)
           patchedNum++
         }
       }
 
-      const increasingNewIndexSequence = getSequence(newIndexToOldIndex)
+      const increasingNewIndexSequence = needMove ? getSequence(newIndexToOldIndex) : []
 
       let sequenceIndex = increasingNewIndexSequence.length - 1;
 
       // 也可以把 N = toBePatchedNum，就可以少些加法操作
-      for (let N = e2BeginIndex; N >= 0; N--) {
-        if (sequenceIndex<0 || N !== increasingNewIndexSequence[sequenceIndex]) {
-          const nextIndex = N + 1
-          const nextChild = newChildren![nextIndex + e2BeginIndex] ? (newChildren![nextIndex + e2BeginIndex] as vnode).$el : null
-          insert(el, (newChildren![N+ e2BeginIndex] as vnode).$el, nextChild)
-          console.log('需要移动');
-        } else {
-          sequenceIndex--
+      for (let N = newIndexToOldIndex.length - 1; N >= 0; N--) {
+        if (needMove) {
+          const nextIndex = N + i + 1
+          const nextChild = newChildren![nextIndex] ? (newChildren![nextIndex] as vnode).$el : null
+          // 新增元素
+          if (newIndexToOldIndex[N] === 0) {
+            patch(null, newChildren![nextIndex - 1] as vnode, el, parentInstance, nextChild as HTMLElement)
+          } else if (needMove) {
+            if (sequenceIndex < 0 || N !== increasingNewIndexSequence[sequenceIndex]) {
+              insert(el, (newChildren![nextIndex - 1] as vnode).$el, nextChild)
+              console.log('需要移动');
+            } else {
+              sequenceIndex--
+            }
+          }
         }
         
       }
