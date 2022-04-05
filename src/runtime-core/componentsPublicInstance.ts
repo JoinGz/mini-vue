@@ -8,6 +8,9 @@ const publicPropertiesMaps: Obj = {
   $slot(i: instance) {
     return i.$slot
   },
+  $props(i: instance) {
+    return i.props
+  },
 }
 
 export const publicInstanceProxyHandler = {
