@@ -317,9 +317,10 @@ export function createRender(options: {
       // a,b,(c,d),f,g
       // a,b,(e,c),f,g
       console.log('diff middle');
-      // 找出现在存在的key
+      // 新节点个数
       const toBePatchedNum = e2 - i + 1
-      const newVnodeKeysMap: Obj = {}
+      // key和自己的索引关系
+      const keyToNewIndexMap: Obj = {}
       // 初始化映射
       const newIndexToOldIndex = new Array(toBePatchedNum)
       // 判断是否需要最长递增子序列
@@ -335,12 +336,12 @@ export function createRender(options: {
       for (let j = i; j <= e2; j++) {
         const vnode = newChildren![j] as vnode;
         if (vnode.key) {
-          newVnodeKeysMap[vnode.key] = j
+          keyToNewIndexMap[vnode.key] = j
         }
       }
 
       function getIndexFromKey(key: string | number) {
-        return newVnodeKeysMap[key]
+        return keyToNewIndexMap[key]
       }
 
       // 在老的节点里面遍历
