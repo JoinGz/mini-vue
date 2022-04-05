@@ -362,10 +362,10 @@ export function createRender(options: {
         if (vnode.key) {
           currentIndex = getIndexFromKey(vnode.key)
         } else {
-          for (let k = 0; k < e2; k++) {
-            const vnode = newChildren![k] as vnode
-            if (isSameVnodeType(vnode, vnode)) {
-              currentIndex = j;
+          for (let k = i; k <= e2; k++) {
+            const newVnode = newChildren![k] as vnode
+            if (isSameVnodeType(vnode, newVnode)) {
+              currentIndex = k;
               break;
             }
           }
@@ -395,7 +395,6 @@ export function createRender(options: {
 
       // 也可以把 N = toBePatchedNum，就可以少些加法操作
       for (let N = newIndexToOldIndex.length - 1; N >= 0; N--) {
-        if (needMove) {
           const nextIndex = N + i + 1
           const nextChild = newChildren![nextIndex] ? (newChildren![nextIndex] as vnode).$el : null
           // 新增元素
@@ -409,8 +408,6 @@ export function createRender(options: {
               sequenceIndex--
             }
           }
-        }
-        
       }
       // console.log(increasingNewIndexSequence)
 
