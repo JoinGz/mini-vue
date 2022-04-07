@@ -53,7 +53,12 @@ export function createRender(options: {
     parentInstance: parentInstance,
     insertBeforeDom: HTMLElement|null
   ) {
-    mountComponent(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
+    if (!vnode1) {
+      mountComponent(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
+    } else {
+      console.log('更新组件');
+      updateComponent(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
+    }
   }
 
   function mountComponent(
@@ -63,20 +68,20 @@ export function createRender(options: {
     parentInstance: parentInstance,
     insertBeforeDom: HTMLElement|null
   ) {
-    const instance = createComponentInstance(vnode2, parentInstance)
+    const instance = vnode2.component = createComponentInstance(vnode2, parentInstance)
 
     initProps(instance, vnode2.props)
 
     initSlots(instance, vnode2.children)
 
-    setupComponent(instance)
+    setupComponent(instance);
 
     setupRenderEffect(instance, dom, insertBeforeDom)
   }
 
   function setupRenderEffect(instance: instance, dom: HTMLElement, insertBeforeDom: HTMLElement|null) {
 
-    effect(() => {
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         // init
         console.log('init');
@@ -92,10 +97,15 @@ export function createRender(options: {
       } else {
         // update
         console.log('update');
+        const { next } = instance
+        if (next) {
+          next.$el = instance.vnode.$el
+          updateComponentProps(instance, next)
+        }
         const preSubTree = instance.subTree
         const subTree = instance.render!.call(instance.proxy)
         instance.subTree = subTree
-  
+        
         patch(preSubTree!, subTree, dom, instance, insertBeforeDom)
 
       }
@@ -435,5 +445,36 @@ export function createRender(options: {
 
 function isSameVnodeType(oldVnode: vnode, newVnode: vnode) {
   return oldVnode?.type === newVnode?.type && oldVnode.key === newVnode.key
+}
+
+function updateComponent(vnode1: vnode, vnode2: vnode, dom: HTMLElement, parentInstance: parentInstance, insertBeforeDom: HTMLElement | null) {
+  const instance = vnode2.component = vnode1.component as instance // 上次的组件实例 instance
+  
+  if (shouldUpdateComponent(vnode1, vnode2)) {
+    instance.next = vnode2
+    instance.update!()
+  } else {
+    vnode2.$el = vnode1.$el
+    instance.vnode = vnode2
+  }
+
+
+}
+
+function updateComponentProps(instance: instance, next: vnode) {
+  instance.vnode = next
+  instance.next = null
+  instance.props = next.props
+}
+
+function shouldUpdateComponent(vnode1: vnode, vnode2: vnode) {
+  const { props: preProps } = vnode1
+  const { props: nextProps } = vnode2
+  for (const key in preProps) {
+    if (preProps[key] !== nextProps![key]) {
+      return true
+    }
+  }
+  return false
 }
 

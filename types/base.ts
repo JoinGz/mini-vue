@@ -17,7 +17,8 @@ export type vnode = {
   shapeFlag?: number,
   render?: () => vnode,
   setup?: (...arg: any[]) => vnode,
-  key: number | string
+  key: number | string,
+  component?: instance,
 } 
 
 export type instance = {
@@ -33,7 +34,9 @@ export type instance = {
   parent: instance | null,
   provide: Obj,
   subTree?: vnode,
-  isMounted: boolean
+  isMounted: boolean,
+  update?: ()=>any
+  next?: vnode | null
 }
 
 export type parentInstance = instance | null 
