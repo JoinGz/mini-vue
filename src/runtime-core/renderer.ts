@@ -8,6 +8,7 @@ import { initProps } from './componentProps'
 import { initSlots } from './componentSlot'
 import { createAppAPI } from './createApp'
 import { Fragment, Text } from './createVnode'
+import { queueJobs } from './scheduler'
 
 export function createRender(options: {
   createElement: (...arg: any[]) => any
@@ -108,6 +109,10 @@ export function createRender(options: {
         
         patch(preSubTree!, subTree, dom, instance, insertBeforeDom)
 
+      }
+    }, {
+      scheduler: () => {
+        queueJobs(instance.update as ()=>any)
       }
     })
 
