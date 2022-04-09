@@ -34,6 +34,10 @@ function parseChildren(context: { sourse: string; }): any {
     }
   }
 
+  if (!node) {
+    node = parseText(context)
+  }
+
 
   nodes.push(node)
 
@@ -58,11 +62,11 @@ function parseInterpolation(context: { sourse: string; }) {
   
   const rowContentLength = closeIndex - openDelimiter.length
 
-  const rowContent = context.sourse.slice(0, rowContentLength)
+  const rowContent = parseTextData(context, rowContentLength)
 
   const content = rowContent.trim()
   
-  advanceBy(context, rowContentLength + closeDelimiter.length)
+  advanceBy(context, closeDelimiter.length)
   
   // console.log(context.sourse)
 
@@ -102,5 +106,25 @@ function parseTag(context: { sourse: string; }, type: TagType) {
     type: NodeTypes.ELEMENT,
     tag,
   }
+}
+
+function parseText(context: { sourse: string; }): any {
+
+  const content = parseTextData(context, context.sourse.length);
+  
+
+  return {
+    type: NodeTypes.TEXT,
+    content,
+  }
+}
+
+function parseTextData(context: { sourse: string; }, length: number) {
+  const content = context.sourse.slice(0, length);
+
+  advanceBy(context, length);
+
+  // console.log(context.sourse);
+  return content;
 }
 
