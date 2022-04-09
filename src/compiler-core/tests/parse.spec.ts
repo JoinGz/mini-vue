@@ -3,7 +3,7 @@ import { baseParse } from "../src/parse"
 
 describe('Parse', () => {
   test('{{}} parse', () => {
-    const testTpl = '{{message}}'
+    const testTpl = '{{ message }}'
 
     const ast = baseParse(testTpl)
 

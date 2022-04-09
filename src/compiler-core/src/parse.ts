@@ -39,17 +39,27 @@ function parseInterpolation(context: { sourse: string; }) {
 
   const closeIndex = context.sourse.indexOf(closeDelimiter, openDelimiter.length)
 
-  const msg = context.sourse.slice(openDelimiter.length, closeIndex)
+  advanceBy(context, openDelimiter.length)
+  
+  const rowContentLength = closeIndex - openDelimiter.length
 
-  context.sourse = context.sourse.slice(openDelimiter.length + closeIndex + closeDelimiter.length)
-  // console.log(context.sourse)
+  const rowContent = context.sourse.slice(0, rowContentLength)
+
+  const content = rowContent.trim()
+  
+  advanceBy(context, rowContentLength + closeDelimiter.length)
+  
+  console.log(context.sourse)
 
   return {
     type: NodeTypes.INTERPOLATION,
     content: {
       type: NodeTypes.SIMPLE_EXPRESSION,
-      content: "message",
+      content: content,
     },
   }
 }
 
+function advanceBy(context: { sourse: string; }, num: number) {
+  return context.sourse = context.sourse.slice(num)
+}
