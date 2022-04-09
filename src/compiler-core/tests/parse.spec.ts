@@ -39,4 +39,29 @@ describe('Parse', () => {
     })
 
   })
+
+  test.only('three case parse', () => {
+    const testTpl = '<div>Hi,{{message}}</div>'
+
+    const ast = baseParse(testTpl)
+
+    expect(ast.children[0]).toStrictEqual({
+      type: NodeTypes.ELEMENT,
+      tag: 'div',
+      children: [
+        {
+          type: NodeTypes.TEXT,
+          content: 'Hi,',
+        },
+        {
+          type: NodeTypes.INTERPOLATION,
+          content: {
+            type: NodeTypes.SIMPLE_EXPRESSION,
+            content: "message",
+          }
+        }
+      ]
+    })
+
+  })
 })

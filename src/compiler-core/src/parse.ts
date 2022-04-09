@@ -25,22 +25,24 @@ function parseChildren(context: { sourse: string; }): any {
 
   const nodes = []
 
-  let node;
-  if (context.sourse.startsWith(openDelimiter)) {
-    node = parseInterpolation(context)
-  } else if (context.sourse[0] === '<') {
-    if (/[A-Z]/i.test(context.sourse[1])) {
-      node = parseElement(context)
+  while (!isEnd(context)) {
+    
+    let node;
+    if (context.sourse.startsWith(openDelimiter)) {
+      node = parseInterpolation(context)
+    } else if (context.sourse[0] === '<') {
+      if (/[A-Z]/i.test(context.sourse[1])) {
+        node = parseElement(context)
+      }
     }
+    
+    if (!node) {
+      node = parseText(context)
+    }
+
+    nodes.push(node)
   }
-
-  if (!node) {
-    node = parseText(context)
-  }
-
-
-  nodes.push(node)
-
+  
   return nodes
 
   
@@ -87,13 +89,18 @@ function parseElement(context: { sourse: string; }): any {
 
   const element = parseTag(context, TagType.Start)
 
+  element.children = parseChildren(context)
+
   parseTag(context, TagType.End)
 
   console.log(context.sourse)
 
   return element
 }
-function parseTag(context: { sourse: string; }, type: TagType) {
+
+function parseTag(context: { sourse: string; }, type: TagType): any {
+
+
   const tagMatch = context.sourse.match(/^<\/?([A-Z]*)/i)
   const tag = tagMatch![1]
 
@@ -110,7 +117,14 @@ function parseTag(context: { sourse: string; }, type: TagType) {
 
 function parseText(context: { sourse: string; }): any {
 
-  const content = parseTextData(context, context.sourse.length);
+  let index = context.sourse.indexOf(openDelimiter)
+  let endIndex = context.sourse.length
+  if (index !== -1) {
+    endIndex = index
+  }
+
+
+  const content = parseTextData(context, endIndex);
   
 
   return {
@@ -126,5 +140,14 @@ function parseTextData(context: { sourse: string; }, length: number) {
 
   // console.log(context.sourse);
   return content;
+}
+
+function isEnd(context: { sourse: string; }) {
+  
+  if (context.sourse.startsWith('</div>')) {
+    return true
+  }
+
+  return !context.sourse
 }
 
