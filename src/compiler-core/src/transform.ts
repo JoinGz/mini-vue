@@ -1,6 +1,6 @@
 import { Obj } from "../../../types/base";
 
-export function transform(root: any, options: Obj) {
+export function transform(root: any, options: Obj = {}) {
 
   // 1. 深度遍历chileren
   // 2. 找到节点进行修改
@@ -8,6 +8,8 @@ export function transform(root: any, options: Obj) {
   const context = createTransformContext(root, options)
 
   transformChildren(root, context)
+
+  createRootCodegen(root)
 
   return root
 }
@@ -43,5 +45,9 @@ function createTransformContext(root: any, options: Obj) {
     root: root,
     nodeTransforms: options.nodeTransforms || []
   }
+}
+
+function createRootCodegen(root: any) {
+  root.codegenNode = root.children[0]
 }
 

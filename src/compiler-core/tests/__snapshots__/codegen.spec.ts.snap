@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`code-generation hi string 1`] = `"return fucntion render (_ctx){return 'hi'}"`;
