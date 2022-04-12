@@ -1,4 +1,6 @@
 import { Obj } from "../../../types/base";
+import { NodeTypes } from "./nodeTypes";
+import { TO_DISPLAY_STRING } from "./runtimehelpers";
 
 export function transform(root: any, options: Obj = {}) {
 
@@ -10,6 +12,8 @@ export function transform(root: any, options: Obj = {}) {
   transformChildren(root, context)
 
   createRootCodegen(root)
+
+  root.helps = [...context.helps.keys()]
 
   return root
 }
@@ -32,22 +36,46 @@ function transformChildren(root: any, context: Obj) {
 function traverseChildren(root: any, context: any) {
   const children = root.children;
 
-  if (children) {
-    for (let i = 0; i < children.length; i++) {
-      const node = children[i];
-      transformChildren(node, context);
-    }
+
+  switch (root.type) {
+    case NodeTypes.INTERPOLATION:
+        traverseExpression(root, context)
+      break;
+    case NodeTypes.ROOT:
+    case NodeTypes.ELEMENT:
+      traverseElement(children, context);
+      break;
+  
+    default:
+      break;
+  }
+
+}
+
+function traverseElement(children: any, context: any) {
+  for (let i = 0; i < children.length; i++) {
+    const node = children[i];
+    transformChildren(node, context);
   }
 }
 
 function createTransformContext(root: any, options: Obj) {
-  return {
+  const context =  {
     root: root,
-    nodeTransforms: options.nodeTransforms || []
+    nodeTransforms: options.nodeTransforms || [],
+    helps: new Map(),
+    addHelp(key: string) {
+      context.helps.set(key, 1)
+    }
   }
+  return context
 }
 
 function createRootCodegen(root: any) {
   root.codegenNode = root.children[0]
+}
+
+function traverseExpression(root: any, context: any) {
+  context.addHelp(TO_DISPLAY_STRING)
 }
 

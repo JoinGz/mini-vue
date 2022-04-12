@@ -44,7 +44,7 @@ function parseChildren(context: { sourse: string }, ancestors: string[]): any {
 }
 
 function createRoot(children: any) {
-  return { children }
+  return { children, type: NodeTypes.ROOT }
 }
 
 function parseInterpolation(context: { sourse: string }) {
