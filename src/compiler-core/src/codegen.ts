@@ -1,5 +1,5 @@
 import { NodeTypes } from './nodeTypes'
-import { helperMapName, TO_DISPLAY_STRING } from './runtimehelpers'
+import { CREATE_ELEMENT_VNODE, helperMapName, TO_DISPLAY_STRING } from './runtimehelpers'
 
 
 type codegenContext =  {
@@ -21,7 +21,8 @@ export function codegen(ast: any) {
 
   push(`function`)
   push(` ${functionName} (${argStr}){`)
-
+  
+  push(`return `)
   genNode(ast.codegenNode, codegenContext)
 
   push('}')
@@ -57,6 +58,12 @@ function genNode(
     case NodeTypes.SIMPLE_EXPRESSION:
       genExpression(ast, codegenContext)
       break
+    case NodeTypes.ELEMENT:
+      genElement(ast, codegenContext)
+      break
+    case NodeTypes.COMPOUND_EXPRESSION:
+      genComExp(ast, codegenContext)
+      break
 
     default:
       break
@@ -67,7 +74,7 @@ function genTextNode(
   ast: any,
   codegenContext: codegenContext
 ) {
-  codegenContext.push(`return '${ast.content}'`)
+  codegenContext.push(`'${ast.content}'`)
 }
 
 function genFunctionPreamble(
@@ -96,7 +103,7 @@ function genInsertNode(
   }
 ) {
   const { push, helps } = codegenContext
-  push(`return ${helps(TO_DISPLAY_STRING)}(`)
+  push(`${helps(TO_DISPLAY_STRING)}(`)
   genNode(ast.content, codegenContext)
   push(`)`)
 }
@@ -107,4 +114,29 @@ function genExpression(
 ) {
   const { push } = codegenContext
   push(`${ast.content}`)
+}
+
+
+function genElement(ast: any, codegenContext: codegenContext) {
+  const { push, helps } = codegenContext
+  push(`${helps(CREATE_ELEMENT_VNODE)}('${ast.tag}', null, `)
+  for (let i = 0; i < ast.children.length; i++) {
+    const children = ast.children[i];
+    // 处理+号问题，通过新增一种COMPOUND_EXPRESSION类型来处理，把相邻是字符串的放入这个类型中，然后循环增加数组
+    genNode(children, codegenContext)
+  }
+  push(`)`)
+}
+
+function genComExp(ast: any, codegenContext: codegenContext) {
+  const { children } = ast
+  const { push } = codegenContext
+  for (let i = 0; i < children.length; i++) {
+    if (typeof children[i] === "string") {
+      push(children[i])
+    } else {
+      genNode(children[i], codegenContext)
+    }
+    
+  }
 }

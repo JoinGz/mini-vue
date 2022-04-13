@@ -1,6 +1,6 @@
 import { Obj } from "../../../types/base";
 import { NodeTypes } from "./nodeTypes";
-import { TO_DISPLAY_STRING } from "./runtimehelpers";
+import { CREATE_ELEMENT_VNODE, TO_DISPLAY_STRING } from "./runtimehelpers";
 
 export function transform(root: any, options: Obj = {}) {
 
@@ -22,13 +22,26 @@ function transformChildren(root: any, context: Obj) {
   
   const nodeTransforms = context.nodeTransforms || []
   
+  const exitFn = []
+
   for (let i = 0; i < nodeTransforms.length; i++) {
     const transform = nodeTransforms[i];
-    transform(root)
+    const fn = transform(root, context)
+    if (fn) {
+      exitFn.push(fn)
+    }
   }
   
   traverseChildren(root, context);
 
+  // for (let i = exitFn.length - 1; i >= 0 ; i--) {
+  //   exitFn[i]();
+  // }
+
+  let i = exitFn.length
+  while (i--) {
+    exitFn[i]();
+  }
 }
 
 
@@ -43,9 +56,7 @@ function traverseChildren(root: any, context: any) {
       break;
     case NodeTypes.ROOT:
     case NodeTypes.ELEMENT:
-      traverseElement(children, context);
-      break;
-  
+        traverseElement(children, context);
     default:
       break;
   }
