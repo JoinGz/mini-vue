@@ -86,7 +86,7 @@ export function createRender(options: {
       if (!instance.isMounted) {
         // init
         console.log('init');
-        const subTree = instance.render!.call(instance.proxy)
+        const subTree = instance.render!.call(instance.proxy, instance.proxy)
     
         instance.subTree = subTree
   
@@ -104,7 +104,7 @@ export function createRender(options: {
           updateComponentProps(instance, next)
         }
         const preSubTree = instance.subTree
-        const subTree = instance.render!.call(instance.proxy)
+        const subTree = instance.render!.call(instance.proxy, instance.proxy)
         instance.subTree = subTree
         
         patch(preSubTree!, subTree, dom, instance, insertBeforeDom)

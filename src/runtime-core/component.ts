@@ -3,7 +3,7 @@ import { publicInstanceProxyHandler } from './componentsPublicInstance'
 import { vnode, instance, Obj, parentInstance } from '../../types/base'
 import { shallowReadOnly } from '../reactivity/reactive'
 import { emit } from './componentEmit'
-import { proxyRef } from '../index'
+import { proxyRef } from '../reactivity/index'
 
 let currentInstance: instance | null = null;
 
@@ -51,6 +51,10 @@ function handleSetupResult(instance: instance, setupBack:  Obj | ( () => vnode  
 function finishComponentSetup(instance: instance) {
   if (instance.type.render) {
     instance.render = instance.type.render
+  } else {
+    if (compiler && instance.type.template) {
+      instance.render = compiler(instance.type.template)
+    }
   }
 }
 
@@ -60,4 +64,10 @@ export function getCurrentInstance(){
 
 export function setCurrentInstance(instance: typeof currentInstance) {
   currentInstance = instance
+}
+
+let compiler: (arg0: string) => (() => vnode) | undefined;
+
+export function createCompiler(compile: any) {
+  compiler = compile
 }

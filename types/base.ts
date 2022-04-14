@@ -19,13 +19,14 @@ export type vnode = {
   setup?: (...arg: any[]) => vnode,
   key: number | string,
   component?: instance,
+  template?: string
 } 
 
 export type instance = {
   vnode: vnode,
   type: vnode,
   props?: Obj, // 这种后面一定会增加的属性咋个定义呢？目前是定义可选
-  render?: () => vnode,
+  render?: (...arg: any[]) => vnode,
   setupState: Obj,
   $el?: HTMLElement,
   $slot?: any,

@@ -1,3 +1,7 @@
+
+export * from '../runtime-core/index'
+
+export * from '../shared/toDisplayString'
 import { Obj } from '../../types/base'
 import { createRender } from '../runtime-core/renderer'
 
