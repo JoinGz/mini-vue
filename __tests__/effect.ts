@@ -6,11 +6,15 @@ describe('effect', () => {
     const user = reactive({ age: 10 })
     let userAge
     effect(() => {
-      userAge = user.age + 1
-      // user.age++ // Maximum call stack size exceeded
+      // userAge = user.age + 1
+      userAge = user.age++ // Maximum call stack size exceeded
     })
 
-    expect(userAge).toBe(11)
+    // get  -> 10
+    // set  -> 11 -> 触发 get 收集的依赖
+    // 
+
+    expect(userAge).toBe(10)
 
     user.age++
 

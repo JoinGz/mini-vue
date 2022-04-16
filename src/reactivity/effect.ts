@@ -10,7 +10,7 @@ type ReactiveEffectRunner<T = any> = {
   _effect: ReactiveEffect
 }
 
-let activeEffect: ReactiveEffect
+let activeEffect: ReactiveEffect | null
 let shouldTrack: boolean;
 export class ReactiveEffect {
   _fn: () => any
@@ -32,6 +32,7 @@ export class ReactiveEffect {
       activeEffect = this
       shouldTrack = true
       result = this._fn()
+      activeEffect = null
       shouldTrack = false // 因为是全局变量，这里做复原操作
     } else {
       result = this._fn()
@@ -106,7 +107,9 @@ export function trackEffect(dep: any) {
   // 用 dep 来收集所有的依赖
   if (!dep.has(activeEffect)) {
     dep.add(activeEffect)
-    activeEffect.deps.add(dep)
+    // 反向搜集所有的依赖(set需要出发的函数)
+    // 在调用stop的时候清除
+    activeEffect!.deps.add(dep)
   }
 }
 
@@ -128,10 +131,12 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
 
 export function triggerEffects(deps: any) {
   for (const effect of deps) {
-    if (typeof effect.options?.scheduler === 'function') {
-      effect.options.scheduler()
-    } else {
-      effect.run()
+    if (effect !== activeEffect) {
+      if (typeof effect.options?.scheduler === 'function') {
+        effect.options.scheduler()
+      } else {
+        effect.run()
+      }
     }
   }
 }

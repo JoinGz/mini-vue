@@ -34,7 +34,7 @@ describe('code-generation', () => {
 
   })
 
-  test.only('div', () => {
+  test('div', () => {
     const ast = baseParse('<div>hi,{{message}}</div>')
 
     transform(ast,{nodeTransforms: [ transformExpression, transformElement, transformText]})
