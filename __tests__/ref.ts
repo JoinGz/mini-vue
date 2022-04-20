@@ -53,6 +53,11 @@ describe('ref', () => {
     // 相同的值不会出发依赖
     expect(num).toBe(3)
     
+    refObj.value = {age: 100}
+    expect(num).toBe(101)
+
+    refObj.value.age += 1
+    expect(num).toBe(102)
   })
 
 

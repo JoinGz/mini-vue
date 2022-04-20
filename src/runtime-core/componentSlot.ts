@@ -24,6 +24,10 @@ export function initSlots(instance: instance, children: any) {
 }
 
 function normalizeObjectSolt(children: Obj, slot: Obj) {
+
+  // children
+  // {header: ({age}) => h('p', null, 'header' + age)}
+
   for (const key in children) {
     const slotType = children[key]
     // 作用域插槽，传入值后返回 vode[]
@@ -32,6 +36,9 @@ function normalizeObjectSolt(children: Obj, slot: Obj) {
       return normalizeSoltValue(value)
     }
   }
+
+  // slot
+  // {header: (...arg)=>{const value = slotType(...arg); return normalizeSoltValue(value)}}
 }
 
 function normalizeSoltValue(value: any) {
