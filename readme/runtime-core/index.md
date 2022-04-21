@@ -25,6 +25,15 @@
 
 对比两个vnode,找出差异，改变dom。
 
+patch收到的vnode主要为两种
+1. html类型的vnode。表现为type为字符串。这种直接新建此类型的html即可，然后根据props等进行处理。
+2. 组件类型的vnode。此种vnode需要得到真正需要渲染的内容，来源于`render`函数。且需要生成组件实例`instnce`，上面挂着的一些内容。
 
-### slot的实现
+```js
+
+instance.type = 原始的组件
+instance.subTree = render返回的vnode,此组件需要渲染的vnode
+
+```
+
 
