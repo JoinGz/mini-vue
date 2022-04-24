@@ -180,6 +180,26 @@ import { h, ref, createTextVNode } from '../../lib/index.esm.js'
 //   h("p", { key: "G" }, "G"),
 // ];
 
+const prevChildren = [
+  h("p", { key: "A" }, "A"),
+  h("p", { key: "B" }, "B"),
+  h("p", { key: "C" }, "C"),
+  h("p", { key: "D" }, "D"),
+  h("p", { key: "E" }, "E"),
+  h("p", { key: "F" }, "F"),
+  h("p", { key: "G" }, "G"),
+];
+
+const nextChildren = [
+  h("p", { key: "B" }, "B"),
+  h("p", { key: "A" }, "A"),
+  h("p", { key: "C" }, "C"),
+  h("p", { key: "D" }, "D"),
+  h("p", { key: "E" }, "E"),
+  h("p", { key: "G" }, "G"),
+  h("p", { key: "F" }, "F"),
+];
+
 // 3. 创建新的节点
 // a,b,(c,e),f,g
 // a,b,(e,c,d),f,g
@@ -230,19 +250,19 @@ import { h, ref, createTextVNode } from '../../lib/index.esm.js'
 // ];
 
 // fix c 节点应该是 move 而不是删除之后重新创建的
-const prevChildren = [
-  h("p", { key: "A" }, "A"),
-  h("p", {}, "C"),
-  h("p", { key: "B" }, "B"),
-  h("p", { key: "D" }, "D"),
-];
+// const prevChildren = [
+//   h("p", { key: "A" }, "A"),
+//   h("p", {}, "C"),
+//   h("p", { key: "B" }, "B"),
+//   h("p", { key: "D" }, "D"),
+// ];
 
-const nextChildren = [
-  h("p", { key: "A" }, "A"),
-  h("p", { key: "B" }, "B"),
-  h("p", {}, "C"),
-  h("p", { key: "D" }, "D"),
-];
+// const nextChildren = [
+//   h("p", { key: "A" }, "A"),
+//   h("p", { key: "B" }, "B"),
+//   h("p", {}, "C"),
+//   h("p", { key: "D" }, "D"),
+// ];
 
 
 

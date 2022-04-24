@@ -386,7 +386,7 @@ export function createRender(options: {
           }
         }
 
-        if (!currentIndex) {
+        if (currentIndex == null) {
           remove((oldChildren![j] as vnode).$el)
         } else {
 
