@@ -164,7 +164,6 @@
 
     ```ts
       for (let N = newIndexToOldIndex.length - 1; N >= 0; N--) {
-        if (needMove) {
           const nextIndex = N + i + 1
           const nextChild = newChildren![nextIndex] ? (newChildren![nextIndex] as vnode).$el : null
           // 新增元素
@@ -178,7 +177,6 @@
               sequenceIndex--
             }
           }
-        }
       }
     ```
 

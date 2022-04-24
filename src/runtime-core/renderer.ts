@@ -30,18 +30,18 @@ export function createRender(options: {
 
     switch (type) {
       case Fragment:
-        processFragment(vnode1 ,vnode2, dom, parentInstance, insertBeforeDom)
+        processFragment(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
         break
 
       case Text:
-        processText(vnode1 ,vnode2, dom, insertBeforeDom)
+        processText(vnode1, vnode2, dom, insertBeforeDom)
         break
 
       default:
         if (shapeFlag! & ShapeFlags.ELEMENT) {
-          processElement(vnode1 ,vnode2, dom, parentInstance, insertBeforeDom)
+          processElement(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
         } else if (shapeFlag! & ShapeFlags.STATEFUL_COMPONENT) {
-          processComponent(vnode1 ,vnode2, dom, parentInstance, insertBeforeDom)
+          processComponent(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
         }
         break
     }
@@ -52,7 +52,7 @@ export function createRender(options: {
     vnode2: vnode,
     dom: HTMLElement,
     parentInstance: parentInstance,
-    insertBeforeDom: HTMLElement|null
+    insertBeforeDom: HTMLElement | null
   ) {
     if (!vnode1) {
       mountComponent(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
@@ -67,7 +67,7 @@ export function createRender(options: {
     vnode2: vnode,
     dom: HTMLElement,
     parentInstance: parentInstance,
-    insertBeforeDom: HTMLElement|null
+    insertBeforeDom: HTMLElement | null
   ) {
     const instance = vnode2.component = createComponentInstance(vnode2, parentInstance)
 
@@ -80,7 +80,7 @@ export function createRender(options: {
     setupRenderEffect(instance, dom, insertBeforeDom)
   }
 
-  function setupRenderEffect(instance: instance, dom: HTMLElement, insertBeforeDom: HTMLElement|null) {
+  function setupRenderEffect(instance: instance, dom: HTMLElement, insertBeforeDom: HTMLElement | null) {
 
     instance.update = effect(() => {
       if (!instance.isMounted) {
@@ -112,7 +112,7 @@ export function createRender(options: {
       }
     }, {
       scheduler: () => {
-        queueJobs(instance.update as ()=>any)
+        queueJobs(instance.update as () => any)
       }
     })
 
@@ -122,7 +122,7 @@ export function createRender(options: {
     vnode2: vnode,
     dom: HTMLElement,
     parentInstance: parentInstance,
-    insertBeforeDom: HTMLElement|null
+    insertBeforeDom: HTMLElement | null
   ) {
     if (!vnode1) {
       mountElement(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
@@ -137,7 +137,7 @@ export function createRender(options: {
     vnode2: vnode,
     dom: HTMLElement,
     parentInstance: parentInstance,
-    insertBeforeDom: HTMLElement|null
+    insertBeforeDom: HTMLElement | null
   ) {
     const el = (vnode2.$el = createElement(vnode2.type as string))
 
@@ -174,12 +174,12 @@ export function createRender(options: {
     parentInstance: parentInstance,
     insertBeforeDom: HTMLElement | null
   ) {
-    ;(children as vnode[]).forEach((v: vnode) => {
+    ; (children as vnode[]).forEach((v: vnode) => {
       patch(null, v, dom, parentInstance, insertBeforeDom)
     })
   }
 
-  function processText(vnode1: vnode | null, vnode2: vnode, dom: HTMLElement, insertBeforeDom: HTMLElement|null) {
+  function processText(vnode1: vnode | null, vnode2: vnode, dom: HTMLElement, insertBeforeDom: HTMLElement | null) {
     const textNode = (vnode2.$el = document.createTextNode(
       vnode2.children as string
     ))
@@ -187,13 +187,13 @@ export function createRender(options: {
     dom.insertBefore(textNode, insertBeforeDom)
   }
 
-  function patchElement(vnode1: vnode, vnode2: vnode, dom: HTMLElement, parentInstance: parentInstance, insertBeforeDom: HTMLElement|null) {
+  function patchElement(vnode1: vnode, vnode2: vnode, dom: HTMLElement, parentInstance: parentInstance, insertBeforeDom: HTMLElement | null) {
     const preProps = vnode1?.props || EMPTY_OBJ
     const nowProps = vnode2?.props || EMPTY_OBJ
   
     const el = (vnode2.$el = vnode1!.$el)
 
-    patchChildren(vnode1 , vnode2, el as HTMLElement, parentInstance, insertBeforeDom)
+    patchChildren(vnode1, vnode2, el as HTMLElement, parentInstance, insertBeforeDom)
     patchProps(el!, preProps, nowProps)
   
   }
@@ -221,7 +221,7 @@ export function createRender(options: {
 
   }
 
-  function patchChildren(oldVnode: vnode, newVnode: vnode, el: HTMLElement, parentInstance: parentInstance, insertBeforeDom: HTMLElement|null) {
+  function patchChildren(oldVnode: vnode, newVnode: vnode, el: HTMLElement, parentInstance: parentInstance, insertBeforeDom: HTMLElement | null) {
     
     const { shapeFlag: oldShapeFlag } = oldVnode
     const { shapeFlag: newShapeFlag } = newVnode
@@ -242,7 +242,7 @@ export function createRender(options: {
         mountChildren(newVnode.children as vnode[], el, parentInstance, insertBeforeDom)
       } else {
         console.log('diff array');
-        patchKeyChildren(oldVnode, newVnode , el , parentInstance, insertBeforeDom)
+        patchKeyChildren(oldVnode, newVnode, el, parentInstance, insertBeforeDom)
       }
     }
 
@@ -262,7 +262,7 @@ export function createRender(options: {
     // 左端对比
     // (a b) c
     // (a b) d e
-    while (i <= e1 && 1 <= e2) {
+    while (i <= e1 && i <= e2) {
       if (isSameVnodeType(oldChildren![i] as vnode, newChildren![i] as vnode)) {
         patch(oldChildren![i] as vnode, newChildren![i] as vnode, el, parentInstance, insertBeforeDom)
       } else {
