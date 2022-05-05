@@ -40,7 +40,7 @@ function convert(row: Obj) {
 }
 
 export function ref<T>(simple: T) {
-  return new RefImpl<T>(simple)
+  return new RefImpl(simple)
 }
 
 function trackRefValue(deps: Set<any>) {

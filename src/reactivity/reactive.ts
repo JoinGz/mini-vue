@@ -1,15 +1,15 @@
 import { Obj, ReactiveFlags } from '../../types/base'
 import { multipleHandler, readonlyHandler, shallowReadonlyHandler } from './baseHandler'
 
-export function reactive(row: Obj): Obj {
-  return createActiveObject(row, multipleHandler)
+export function reactive<T extends object>(row: T): T {
+  return createActiveObject(row, multipleHandler) as T
 }
 
 export function readOnly(row: Obj): Obj {
   return createActiveObject(row, readonlyHandler)
 }
 
-function createActiveObject(row: Obj, handler: ProxyHandler<Obj>) {
+function createActiveObject<T extends object>(row: T, handler: ProxyHandler<Obj>) {
   return new Proxy(row, handler)
 }
 

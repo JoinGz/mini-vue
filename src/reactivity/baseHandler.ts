@@ -48,12 +48,12 @@ const setter = createSet()
 const readOnlyGetter = createGetter(true)
 const shallowReadOnlyGetter = createGetter(true, {shallowReadOnly: true})
 
-export const multipleHandler = {
+export const multipleHandler: ProxyHandler<object> = {
   get: getter,
-  set: setter
+  set: setter,
 }
 
-export const readonlyHandler = {
+export const readonlyHandler: ProxyHandler<object> = {
   get: readOnlyGetter,
   set: function <T extends object>(org: T, key: keyof T, value: any) {
     console.warn(`readonly --> no set!`, org)
@@ -61,6 +61,6 @@ export const readonlyHandler = {
   }
 }
 
-export const shallowReadonlyHandler = Object.assign({}, readonlyHandler, {
+export const shallowReadonlyHandler: ProxyHandler<object> = Object.assign({}, readonlyHandler, {
   get: shallowReadOnlyGetter
 })

@@ -1,12 +1,12 @@
 import { ReactiveEffect } from './effect'
 
-class ComputedRefImpl {
-  private _fn: () => any
-  private _dirty: boolean
-  private _value: any
-  private _effect: ReactiveEffect
+class ComputedRefImpl<T> {
+  private _fn: () => T
+  private _dirty: boolean = false
+  private _value!: T // 后面一定会有，就直接 非空断言操作符
+  private _effect: ReactiveEffect<T>
 
-  constructor(fn: () => any) {
+  constructor(fn: () => T) {
     this._fn = fn
     this._dirty = false
     this._effect = new ReactiveEffect(fn, {
@@ -25,6 +25,6 @@ class ComputedRefImpl {
     return this._value
   }
 }
-export function computed(fn: () => any) {
+export function computed<T>(fn: () => T) {
   return new ComputedRefImpl(fn)
 }

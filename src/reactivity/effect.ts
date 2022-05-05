@@ -1,7 +1,7 @@
 type effectOptions = {
   scheduler?: () => void,
   stop?: () => void,
-  [key: string]: any
+  onStop?: ()=> void
 }
 
 // 函数，函数有对象的写法
@@ -12,13 +12,13 @@ type ReactiveEffectRunner<T = any> = {
 
 let activeEffect: ReactiveEffect | null
 let shouldTrack: boolean;
-export class ReactiveEffect {
-  _fn: () => any
+export class ReactiveEffect<T = any> {
+  _fn: () => T
   options: effectOptions
   deps: Set<any>
   active = true
 
-  constructor(fn: () => any, options?: effectOptions) {
+  constructor(fn: () => T, options?: effectOptions) {
     this.deps = new Set()
     this._fn = fn
     this.options = options as effectOptions
@@ -67,12 +67,12 @@ export class ReactiveEffect {
   
 }
 
-export function effect(
-  fn: () => any,
+export function effect<T = any>(
+  fn: () => T,
   options?: effectOptions
 ): ReactiveEffectRunner {
   // 面向对象编程
-  const _effect: any = new ReactiveEffect(fn, options)
+  const _effect = new ReactiveEffect(fn, options)
 
   _effect.run()
 
@@ -103,7 +103,7 @@ export function track(row: { [key: string]: any }, key: string | symbol | number
   trackEffect(fnDeps)
 }
 
-export function trackEffect(dep: any) {
+export function trackEffect(dep: Set<any>) {
   // 用 dep 来收集所有的依赖
   if (!dep.has(activeEffect)) {
     dep.add(activeEffect)
