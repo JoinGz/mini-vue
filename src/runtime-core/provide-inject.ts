@@ -1,7 +1,8 @@
+import { instance } from "../../types/base";
 import { getCurrentInstance } from "./component";
 
 export function provide(key: string, value: any) {
-  const currentInstance: any = getCurrentInstance()
+  const currentInstance: instance | null = getCurrentInstance()
   
   if (currentInstance) {
     /**
@@ -19,15 +20,15 @@ export function provide(key: string, value: any) {
 }
 
 export function inject(key: string, defaultValue: any) {
-  const currentInstance: any = getCurrentInstance()
+  const currentInstance: instance | null = getCurrentInstance()
 
   if (!currentInstance) {
     console.warn(`没有currentInstance`)
     return
   }
   const { parent } = currentInstance
-  if (key in parent.provide) {
-    return parent.provide[key]
+  if (key in parent!.provide) {
+    return parent!.provide[key]
   } else if (defaultValue) {
     if (typeof defaultValue === 'function') {
       return defaultValue()

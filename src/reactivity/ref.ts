@@ -7,7 +7,7 @@ type refImp = string | number | Obj
 
 
 // todo: ts 优化
-class RefImpl<T> {
+class RefImpl<T = any> {
   private _value
   deps: Set<any>
   public __v_isRef =  true
@@ -48,12 +48,13 @@ function trackRefValue(deps: Set<any>) {
     trackEffect(deps)
   }
 }
-
-export function isRef(ref: any) {
+export function isRef<T>(ref: RefImpl<T> | unknown): ref is RefImpl<T>;
+// export function isRef(ref: any): ref is RefImpl;
+export function isRef(ref: any): ref is RefImpl {
   return !!ref["__v_isRef"]
 }
 
-export function unRef(ref: any) {
+export function unRef<T>(ref: T | RefImpl<T>): T {
   return isRef(ref) ? ref.value : ref
 }
 
@@ -65,7 +66,11 @@ export function proxyRef_my(target: any) {
   })
 }
 
-export function proxyRef(target: any) {
+type ShallowUnwrapRef<T> = {
+  [P in keyof T]: T[P] extends RefImpl<infer V> ? V : T[P]
+}
+
+export function proxyRef<T extends object>(target: T): ShallowUnwrapRef<T> {
   return new Proxy(target, {
     get (target, key) {
       return unRef(Reflect.get(target, key))
@@ -88,5 +93,5 @@ export function proxyRef(target: any) {
         return Reflect.set(target, key, newValue)
       }
     }
-  })
+  }) as ShallowUnwrapRef<T>
 }

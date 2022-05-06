@@ -65,7 +65,7 @@ describe('ref', () => {
     
     const refNumber = ref(1)
     const reactiveA = reactive({ a: 1 })
-    
+
     expect(isRef(refNumber)).toBe(true)
     expect(isRef(reactiveA)).toBe(false)
     expect(isRef(1)).toBe(false)
@@ -107,7 +107,7 @@ describe('ref', () => {
     proxtRefObj.skill = ['css']
     expect(obj.skill.value[0]).toBe('css')
     
-    proxtRefObj.skill = ref(['js'])
+    proxtRefObj.skill = ref(['js']) as unknown as string[]
     expect(obj.skill.value[0]).toBe('js')
     expect(proxtRefObj.skill[0]).toBe('js')
 

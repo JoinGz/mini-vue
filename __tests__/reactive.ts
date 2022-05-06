@@ -29,7 +29,7 @@ describe('reactive', () => {
   })
 
   test('reactive子对象判断', () => {
-    const obj = { age: 1, skill: ["sing", {piano: 'level5'}], someKey: {b: 6} } 
+    const obj = { age: 1, skill: ["sing", {piano: 'level5'}] as {[key: string]: any}, someKey: {b: 6} } 
     const proxyObj = reactive(obj)
 
     expect(isReactive(proxyObj)).toBe(true)
@@ -52,7 +52,7 @@ describe('reactive', () => {
   })
 
   test('readOnly子对象判断', () => {
-    const obj = { age: 1, skill: ["sing", {piano: 'level5'}], someKey: {b: 6} } 
+    const obj = { age: 1, skill: ["sing", {piano: 'level5'}] as {[key: string]: any}, someKey: {b: 6} } 
     const proxyObj = readOnly(obj)
 
     expect(isReadOnly(proxyObj)).toBe(true)
@@ -62,7 +62,7 @@ describe('reactive', () => {
   })
 
   test('reactive子对象依赖', () => {
-    const obj = { age: 1, skill: ["sing", {piano: 'level5'}], someKey: {b: 6} } 
+    const obj = { age: 1, skill: ["sing", {piano: 'level5'}] as {[key: string]: any}, someKey: {b: 6} } 
     const proxyObj = reactive(obj)
 
     expect(isReactive(proxyObj)).toBe(true)
