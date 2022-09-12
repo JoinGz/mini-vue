@@ -29,6 +29,7 @@ export class ReactiveEffect<T = any> {
     let result;
 
     if (this.active) {
+      this.clearDeps()
       activeEffect = this
       shouldTrack = true
       result = this._fn()
@@ -82,7 +83,7 @@ export function effect<T = any>(
   return runner
 }
 
-const trackMap = new Map()
+const trackWeakMap = new WeakMap()
 
 
 export function track(row: { [key: string]: any }, key: string | symbol | number) {
@@ -90,10 +91,10 @@ export function track(row: { [key: string]: any }, key: string | symbol | number
     return
   }
   // target -> key -> dep
-  let keyDeps = trackMap.get(row)
+  let keyDeps = trackWeakMap.get(row)
   if (!keyDeps) {
     keyDeps = new Map()
-    trackMap.set(row, keyDeps)
+    trackWeakMap.set(row, keyDeps)
   }
   let fnDeps = keyDeps.get(key)
   if (!fnDeps) {
@@ -118,7 +119,7 @@ export function isTracking() {
 }
 
 export function trigger(row: { [key: string]: any }, key: string | symbol | number) {
-  let keyDeps = trackMap.get(row)
+  let keyDeps = trackWeakMap.get(row)
   if (!keyDeps) {
     return
   }
@@ -130,7 +131,8 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
 }
 
 export function triggerEffects(deps: any) {
-  for (const effect of deps) {
+  const copyDeps = new Set<any>(deps)
+  for (const effect of copyDeps) {
     if (effect !== activeEffect) {
       if (typeof effect.options?.scheduler === 'function') {
         effect.options.scheduler()

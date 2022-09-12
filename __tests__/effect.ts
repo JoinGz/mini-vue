@@ -141,5 +141,29 @@ describe('effect', () => {
     
   })
 
+  it('分支切换', () => {
+    const data = { ok: true, text: 'hello world' }
+    const obj = reactive(data)
+
+    const effectFn = jest.fn(() => {
+      // console.log(`触发了依赖`)
+      result = obj.ok ? obj.text : 'not'
+    })
+
+    let result;
+
+    effect(effectFn)
+
+    expect(result).toBe('hello world')
+    obj.ok = false // obj.ok为false时，obj.text之前收集到的依赖应该清除
+    expect(effectFn).toBeCalledTimes(2)
+    expect(result).toBe('not')
+
+
+    obj.text = 'dont called effectFn';
+    expect(effectFn).toBeCalledTimes(2) // obj.text无依赖
+
+  })
+
 
 })
