@@ -165,7 +165,7 @@ describe('effect', () => {
 
   })
 
-  it.skip('嵌套的effect', () => {
+  it('嵌套的effect', () => {
     const people = reactive({ age: 20, name: 'test' })
 
     const nameFn = jest.fn(function nameFnJest() {
@@ -186,12 +186,12 @@ describe('effect', () => {
     
     people.name = 'new Name'
     expect(ageFn).toBeCalledTimes(2)
-    expect(nameFn).toBeCalledTimes(3)
+    expect(nameFn).toBeCalledTimes(4)
 
 
   })
 
-  it.skip('嵌套effect', () => {
+  it('嵌套effect', () => {
      // 原始数据
      const data = { foo: true, bar: true }
      // 代理对象

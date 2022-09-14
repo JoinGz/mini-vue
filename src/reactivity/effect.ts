@@ -10,7 +10,8 @@ type ReactiveEffectRunner<T = any> = {
   _effect: ReactiveEffect
 }
 
-let activeEffect: ReactiveEffect | null
+const activeEffectList:ReactiveEffect[] = []
+let activeEffect: ReactiveEffect | undefined | null
 let shouldTrack: boolean;
 export class ReactiveEffect<T = any> {
   _fn: () => T
@@ -31,9 +32,13 @@ export class ReactiveEffect<T = any> {
     if (this.active) {
       this.clearDeps()
       activeEffect = this
+      activeEffectList.push(this)
       shouldTrack = true
       result = this._fn()
-      activeEffect = null
+      activeEffectList.pop()
+      activeEffect = activeEffectList[activeEffectList.length - 1]
+      // activeEffect = null
+      if (activeEffectList.length === 0 )
       shouldTrack = false // 因为是全局变量，这里做复原操作
     } else {
       result = this._fn()
