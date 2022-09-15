@@ -1,4 +1,5 @@
 import { computed } from "../src/reactivity/computed"
+import { effect } from "../src/reactivity/effect"
 import { reactive } from "../src/reactivity/reactive"
 
 describe('computed', () => {
@@ -45,4 +46,28 @@ describe('computed', () => {
     expect(getter).toHaveBeenCalledTimes(2)
 
   })
+
+
+  test('嵌套的计算属性正常收集依赖', () => {
+    
+    const user = reactive({ age: 18 })
+    const computedAge = computed(() => {
+      return user.age + 1
+    })
+    
+    const getComputedAgeFn = jest.fn(() => {
+      console.log(`computedUser->change: ${computedAge.value}`)
+    })
+
+    expect(getComputedAgeFn).toBeCalledTimes(0)
+    effect(getComputedAgeFn)
+    expect(getComputedAgeFn).toBeCalledTimes(1)
+    
+    user.age++
+    expect(getComputedAgeFn).toBeCalledTimes(2)
+
+
+
+  })
+
 })

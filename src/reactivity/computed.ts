@@ -1,4 +1,4 @@
-import { ReactiveEffect } from './effect'
+import { ReactiveEffect, track, trigger } from './effect'
 
 class ComputedRefImpl<T> {
   private _fn: () => T
@@ -12,6 +12,7 @@ class ComputedRefImpl<T> {
     this._effect = new ReactiveEffect(fn, {
       scheduler: () => {
         this._dirty = false
+        trigger(this, 'value')
       },
     })
   }
@@ -19,9 +20,9 @@ class ComputedRefImpl<T> {
   get value() {
     if (!this._dirty) {
       this._value = this._effect.run()
-      
       this._dirty = true
     }
+    track(this, 'value')
     return this._value
   }
 }
