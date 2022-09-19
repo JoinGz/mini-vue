@@ -2,17 +2,21 @@
 
 import { track, trigger } from "./effect"
 import { ReactiveFlags } from '../../types/base'
-import { reactive, readOnly } from "./reactive"
+import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnlyMap, toRow } from "./reactive"
 import { isObject } from "../shared/utils"
 
 // 抽离get, set
 function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: boolean} = {}) {
-  return function get<T extends object>(org: T, key: keyof T) {
+  return function get<T extends object>(org: T, key: keyof T, receiver: typeof Proxy<T>) {
 
     if (key === ReactiveFlags['IS_REACTIVE']) {
       return !isReadOnly
     } else if (key === ReactiveFlags['IS_READONLY']) {
       return isReadOnly
+    } else if (key === ReactiveFlags['__v_row']) {
+      if (receiver === (isReadOnly ? (options.shallowReadOnly ? shallowReadOnlyMap : readOnlyMap) : reactiveMap).get(org)) {
+        return org
+      }
     }
 
     const result = Reflect.get(org, key)
@@ -37,7 +41,7 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
 
 function createSet() {
   return function <T extends object>(org: T, key: keyof T, value: any) {
-    const reuslt = Reflect.set(org, key, value)
+    const reuslt = Reflect.set(org, key, toRow(value))
     trigger(org, key)
     return reuslt
   }

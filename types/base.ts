@@ -2,7 +2,8 @@ export type Obj = { [key: string | number | symbol]: any }
 
 export enum ReactiveFlags {
   "IS_REACTIVE" = "__v_isReactive",
-  "IS_READONLY" = "__v_isReadonly"
+  "IS_READONLY" = "__v_isReadonly",
+  "__v_row" = "__v_row",
 }
 
 export type props = Obj & { id?: string, class?: string[] | string }
