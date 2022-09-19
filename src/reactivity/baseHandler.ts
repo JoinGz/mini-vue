@@ -7,7 +7,7 @@ import { isObject } from "../shared/utils"
 
 // 抽离get, set
 function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: boolean} = {}) {
-  return function get<T extends object>(org: T, key: keyof T, receiver: typeof Proxy<T>) {
+  return function get<T extends object>(org: T, key: keyof T, receiver: T) {
 
     if (key === ReactiveFlags['IS_REACTIVE']) {
       return !isReadOnly

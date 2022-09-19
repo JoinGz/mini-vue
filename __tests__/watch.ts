@@ -74,4 +74,40 @@ describe('watch', () => {
 
     expect(userChangeFn).toHaveBeenCalledTimes(1)
   })
+
+  test('watch 立即执行', async () => {
+    const aUser: any = { age: 18 }
+    const user = reactive(aUser)
+    const userChangeFn = jest.fn(() => {
+      console.log(`user changed`)
+    })
+
+    watch(user, userChangeFn, {immediate: true})
+
+    await Promise.resolve() // vue3里回调是queueJob异步里
+    expect(userChangeFn).toHaveBeenCalledTimes(1)
+
+    user.age++
+
+    await Promise.resolve() // vue3里回调是queueJob异步里
+    expect(userChangeFn).toHaveBeenCalledTimes(2)
+  })
+
+  test.only('watch getter函数', async () => {
+    const aUser: any = { age: 18 }
+    const user = reactive(aUser)
+    const userChangeFn = jest.fn(() => {
+      console.log(`user changed`)
+    })
+
+    watch(()=>user.age, userChangeFn)
+
+    await Promise.resolve() // vue3里回调是queueJob异步里
+    expect(userChangeFn).toHaveBeenCalledTimes(0)
+
+    user.age++
+
+    await Promise.resolve() // vue3里回调是queueJob异步里
+    expect(userChangeFn).toHaveBeenCalledTimes(1)
+  })
 })
