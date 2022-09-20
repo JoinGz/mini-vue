@@ -133,4 +133,36 @@ describe('watch', () => {
     expect(oldV).toBe(18)
     expect(newV).toBe(19)
   })
+
+  test('watch 竞态', (done) => {
+    const aUser: any = { age: 18 }
+    const user = reactive(aUser)
+    let newV: any,
+      time = 1
+    const userChangeFn = (oldValue: any, newValue: any, onInvalidate: any) => {
+      console.log('enter user change - ' + newValue)
+      let isInvalid: boolean
+      onInvalidate(() => (isInvalid = true))
+      setTimeout(
+        () => {
+          if (!isInvalid) {
+            newV = newValue
+          }
+          console.log(`newV-change - ` + newValue)
+        },
+        time % 2 == 1 ? 300 : 100
+      )
+      time++
+    }
+
+    watch(() => user.age, userChangeFn)
+
+    user.age = 19 // spend 300ms
+    user.age = 20 // spend 100ms
+
+    setTimeout(() => {
+      expect(newV).toBe(20)
+      done()
+    }, 1000)
+  })
 })

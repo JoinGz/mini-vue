@@ -26,10 +26,13 @@ function doWatch(source: watchAim, cb: anyFunction, options?: watchOptions) {
     console.warn(`不支持的入参，请传入响应式对象或函数`)
     return
   }
-  let oldValue: any, newValue: any
+  let oldValue: any, newValue: any;
+  let cleanup:anyFunction;
+  const onInvalidate = (fn: anyFunction)=>cleanup = fn
   const job = () => {
     newValue = result.run()
-    cb(oldValue, newValue)
+    if (cleanup)cleanup()
+    cb(oldValue, newValue, onInvalidate)
     oldValue = newValue
   }
   const result = new ReactiveEffect(getter, {
