@@ -181,4 +181,32 @@ describe('reactive', () => {
 
   })
 
+  test('for in 、in、 reactive依赖', () => {
+    const user = reactive({ age: 10,name: 'test' })
+
+    const inFunc = jest.fn(() => {
+      for (let key in user)
+        console.log(`age is tracked`)
+      if ('age' in user) {
+        console.log(`age is user`)
+      }
+      console.log(user.name)
+    })
+
+    expect(inFunc).toBeCalledTimes(0)
+    effect(inFunc)
+    expect(inFunc).toBeCalledTimes(1)
+    user.name = 'for'
+    expect(inFunc).toBeCalledTimes(2)
+    // @ts-ignore
+    user.skill = 'vue'
+    expect(inFunc).toBeCalledTimes(3)
+    user.age++
+    expect(inFunc).toBeCalledTimes(4)
+    // @ts-ignore
+    delete user.age
+    expect(inFunc).toBeCalledTimes(5)
+
+  })
+
 })

@@ -132,18 +132,24 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
     return
   }
 
+  const deps = new Set();
+
   if (label === triggerType.ADD || label === triggerType.DELETED) {
     let ownkeysDeps = keyDeps.get(iterate_key)
     if (ownkeysDeps) {
-      triggerEffects(ownkeysDeps)
+      for (const dep of ownkeysDeps) {
+          deps.add(dep)
+      }
     }
   }
 
   let fnDeps = keyDeps.get(key)
-  if (!fnDeps) {
-    return
+  if (fnDeps) {
+    for (const dep of fnDeps) {
+        deps.add(dep)
+    }
   }
-  triggerEffects(fnDeps)
+  triggerEffects(deps)
 }
 
 export function triggerEffects(deps: any) {
