@@ -131,4 +131,37 @@ describe('reactive', () => {
 
   })
 
+  test('for in 语句依赖收集', () => {
+    const user = reactive({ age: 10 })
+
+    const inFunc = jest.fn(() => {
+      for (let key in user)
+      console.log(`age is tracked`)
+    })
+
+    expect(inFunc).toBeCalledTimes(0)
+    effect(inFunc)
+    expect(inFunc).toBeCalledTimes(1)
+    // @ts-ignore
+    user.name = 20
+    expect(inFunc).toBeCalledTimes(2)
+
+  })
+
+  test('for in 语句依赖收集-改变值不会重新触发', () => {
+    const user = reactive({ age: 10 })
+
+    const inFunc = jest.fn(() => {
+      for (let key in user)
+      console.log(`age is tracked`)
+    })
+
+    expect(inFunc).toBeCalledTimes(0)
+    effect(inFunc)
+    expect(inFunc).toBeCalledTimes(1)
+    user.age = 20
+    expect(inFunc).toBeCalledTimes(1)
+
+  })
+
 })

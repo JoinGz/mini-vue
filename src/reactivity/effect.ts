@@ -1,3 +1,5 @@
+import { triggerType, iterate_key } from "./baseHandler"
+
 type effectOptions = {
   scheduler?: () => void,
   stop?: () => void,
@@ -123,16 +125,27 @@ export function isTracking() {
   return activeEffect && shouldTrack
 }
 
-export function trigger(row: { [key: string]: any }, key: string | symbol | number) {
+export function trigger(row: { [key: string]: any }, key: string | symbol | number, label?: triggerType) {
+  
   let keyDeps = trackWeakMap.get(row)
   if (!keyDeps) {
     return
   }
+
+  if (label === triggerType.ADD) {
+    let ownkeysDeps = keyDeps.get(iterate_key)
+    if (ownkeysDeps) {
+      triggerEffects(ownkeysDeps)
+    }
+  }
+
   let fnDeps = keyDeps.get(key)
   if (!fnDeps) {
     return
   }
   triggerEffects(fnDeps)
+
+  
 }
 
 export function triggerEffects(deps: any) {

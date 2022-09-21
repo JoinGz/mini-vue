@@ -4,6 +4,12 @@ import { track, trigger } from "./effect"
 import { ReactiveFlags } from '../../types/base'
 import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnlyMap, toRow } from "./reactive"
 import { isObject } from "../shared/utils"
+export const iterate_key = Symbol()
+
+export const enum  triggerType {
+  'ADD',
+  'DELETED'
+}
 
 // 抽离get, set
 function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: boolean} = {}) {
@@ -41,8 +47,12 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
 
 function createSet() {
   return function <T extends object>(org: T, key: keyof T, value: any) {
+    let label: triggerType | undefined = triggerType.ADD;
+    if (org.hasOwnProperty(key)) {
+      label = undefined
+    }
     const reuslt = Reflect.set(org, key, toRow(value))
-    trigger(org, key)
+    trigger(org, key, label)
     return reuslt
   }
 }
@@ -55,7 +65,8 @@ const shallowReadOnlyGetter = createGetter(true, {shallowReadOnly: true})
 export const multipleHandler: ProxyHandler<object> = {
   get: getter,
   set: setter,
-  has
+  has,
+  ownKeys
 }
 
 export const readonlyHandler: ProxyHandler<object> = {
@@ -73,4 +84,9 @@ export const shallowReadonlyHandler: ProxyHandler<object> = Object.assign({}, re
 function has(target: object, key: PropertyKey)  {
   track(target, key)
   return Reflect.has(target, key)
+}
+
+function ownKeys(target: object) {
+  track(target, iterate_key)
+  return Reflect.ownKeys(target)
 }
