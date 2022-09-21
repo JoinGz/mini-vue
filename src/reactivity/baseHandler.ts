@@ -66,7 +66,8 @@ export const multipleHandler: ProxyHandler<object> = {
   get: getter,
   set: setter,
   has,
-  ownKeys
+  ownKeys,
+  deleteProperty
 }
 
 export const readonlyHandler: ProxyHandler<object> = {
@@ -89,4 +90,20 @@ function has(target: object, key: PropertyKey)  {
 function ownKeys(target: object) {
   track(target, iterate_key)
   return Reflect.ownKeys(target)
+}
+
+function deleteProperty(target: object, key: PropertyKey) {
+
+    // 检查被操作的属性是否是对象自己的属性
+    const hadKey = Object.prototype.hasOwnProperty.call(target, key)
+    // 使用 Reflect.deleteProperty 完成属性的删除
+    const res = Reflect.deleteProperty(target, key)
+
+    if (res && hadKey) {
+      // 只有当被删除的属性是对象自己的属性并且成功删除时，才触发更新
+      trigger(target, key, triggerType.DELETED)
+    }
+
+    return res
+
 }

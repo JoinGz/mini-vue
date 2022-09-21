@@ -132,7 +132,7 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
     return
   }
 
-  if (label === triggerType.ADD) {
+  if (label === triggerType.ADD || label === triggerType.DELETED) {
     let ownkeysDeps = keyDeps.get(iterate_key)
     if (ownkeysDeps) {
       triggerEffects(ownkeysDeps)
@@ -144,8 +144,6 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
     return
   }
   triggerEffects(fnDeps)
-
-  
 }
 
 export function triggerEffects(deps: any) {
