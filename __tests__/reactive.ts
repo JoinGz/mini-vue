@@ -115,4 +115,20 @@ describe('reactive', () => {
 
   })
 
+  test('in 关键字依赖收集', () => {
+    const user = reactive({ age: 10 })
+
+    const inFunc = jest.fn(() => {
+      if ('age' in user)
+      console.log(`age is tracked`)
+    })
+
+    expect(inFunc).toBeCalledTimes(0)
+    effect(inFunc)
+    expect(inFunc).toBeCalledTimes(1)
+    user.age = 20
+    expect(inFunc).toBeCalledTimes(2)
+
+  })
+
 })

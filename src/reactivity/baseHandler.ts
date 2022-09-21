@@ -55,6 +55,7 @@ const shallowReadOnlyGetter = createGetter(true, {shallowReadOnly: true})
 export const multipleHandler: ProxyHandler<object> = {
   get: getter,
   set: setter,
+  has
 }
 
 export const readonlyHandler: ProxyHandler<object> = {
@@ -68,3 +69,8 @@ export const readonlyHandler: ProxyHandler<object> = {
 export const shallowReadonlyHandler: ProxyHandler<object> = Object.assign({}, readonlyHandler, {
   get: shallowReadOnlyGetter
 })
+
+function has(target: object, key: PropertyKey)  {
+  track(target, key)
+  return Reflect.has(target, key)
+}
