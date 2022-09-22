@@ -209,4 +209,117 @@ describe('reactive', () => {
 
   })
 
+
+  describe('数组的响应式', () => {
+    test('happy path', () => {
+      const arr = reactive([1, 2, 3])
+
+      const arrChangedCb = jest.fn(() => {
+        console.log(arr[1])
+      })
+
+      effect(arrChangedCb)
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(1)
+      arr[1] = 4
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(2)
+    })
+
+    test('length改变-触发length的依赖', () => {
+      /**
+       * 当设置值时。设置的值大于数组长度时，会触发length操作
+       */
+      const arr = reactive([1, 2, 3])
+
+      const arrChangedCb = jest.fn(() => {
+        console.log(arr.length)
+      })
+
+      effect(arrChangedCb)
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(1)
+      arr[3] = 4
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(2)
+    })
+
+    test('length改变-数组清空', () => {
+      /**
+       * 当设置值是length时；触发依赖时判断：所有大于新设置length值的依赖重新执行
+       */
+      const arr = reactive([1, 2, 3])
+
+      const arrChangedCb = jest.fn(() => {
+        console.log(arr[1])
+      })
+
+      effect(arrChangedCb)
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(1)
+      arr.length = 0
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(2)
+    })
+
+    test('length改变-数组清空-没依赖的不执行', () => {
+
+      const arr = reactive([1, 2, 3])
+
+      const arrChangedCb = jest.fn(() => {
+        console.log(arr[0])
+      })
+
+      effect(arrChangedCb)
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(1)
+      arr.length = 2
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(1)
+    })
+
+    test('数组的响应式-for in', () => {
+      const arr = reactive([1, 2, 3])
+
+      const arrChangedCb = jest.fn(() => {
+        for (let i in arr) {
+          console.log(`for in`)
+        }
+      })
+
+      effect(arrChangedCb)
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(1)
+
+      arr.length = 6
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(2)
+    })
+
+    test('数组的响应式-for of', () => {
+      /**
+       * for of里执行了array[index],同时触发了一些原生方法，所以剔除了symbol
+       */
+      const arr = reactive([1, 2, 3])
+
+      const arrChangedCb = jest.fn(() => {
+        for (let v of arr) {
+          console.log(`for in`)
+        }
+      })
+
+      effect(arrChangedCb)
+
+      expect(arrChangedCb).toHaveBeenCalledTimes(1)
+      
+      arr[1] = 5
+      expect(arrChangedCb).toHaveBeenCalledTimes(2)
+      
+
+      arr.length = 6
+      expect(arrChangedCb).toHaveBeenCalledTimes(3)
+
+    })
+  })
+
 })

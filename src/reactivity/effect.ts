@@ -125,7 +125,7 @@ export function isTracking() {
   return activeEffect && shouldTrack
 }
 
-export function trigger(row: { [key: string]: any }, key: string | symbol | number, label?: triggerType) {
+export function trigger(row: { [key: string]: any }, key: string | symbol | number, label?: triggerType, value?: unknown) {
   
   let keyDeps = trackWeakMap.get(row)
   if (!keyDeps) {
@@ -133,6 +133,27 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
   }
 
   const deps = new Set();
+
+  if (Array.isArray(row)) {
+    if (label === triggerType.ADD) {
+      const lengthDeps = keyDeps.get('length')
+      if (lengthDeps) {
+        for (const dep of lengthDeps) {
+          deps.add(dep)
+        }
+      }
+    }
+    if (key === 'length') {
+      keyDeps.forEach((item: any, key: number) => {
+        if (key >= (value as number)) {
+            for (const dep of item) {
+              deps.add(dep)
+            }
+          }
+        })
+      
+    }
+  }
 
   if (label === triggerType.ADD || label === triggerType.DELETED) {
     let ownkeysDeps = keyDeps.get(iterate_key)

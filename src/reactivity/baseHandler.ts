@@ -8,7 +8,8 @@ export const iterate_key = Symbol()
 
 export const enum  triggerType {
   'ADD',
-  'DELETED'
+  'DELETED',
+  'SET'
 }
 
 // 抽离get, set
@@ -32,7 +33,7 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
       return result
     }
     
-    if (!isReadOnly) {
+    if (!isReadOnly && typeof key !== 'symbol') {
       track(org, key)
     }
 
@@ -47,12 +48,16 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
 
 function createSet() {
   return function <T extends object>(org: T, key: keyof T, value: any) {
-    let label: triggerType | undefined = triggerType.ADD;
+    let label: triggerType = triggerType.ADD;
     if (org.hasOwnProperty(key)) {
-      label = undefined
+      label = triggerType.SET
+    }
+    if (Array.isArray(org)) {
+      const overLength = Number(key) >= org.length
+      label = overLength ? triggerType.ADD : triggerType.SET
     }
     const reuslt = Reflect.set(org, key, toRow(value))
-    trigger(org, key, label)
+    trigger(org, key, label, value)
     return reuslt
   }
 }
@@ -88,7 +93,7 @@ function has(target: object, key: PropertyKey)  {
 }
 
 function ownKeys(target: object) {
-  track(target, iterate_key)
+  track(target, Array.isArray(target) ? "length" : iterate_key)
   return Reflect.ownKeys(target)
 }
 
