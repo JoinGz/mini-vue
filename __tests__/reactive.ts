@@ -322,4 +322,36 @@ describe('reactive', () => {
     })
   })
 
+  test('值改变才触发响应', () => {
+    const user = reactive({ age: 18 })
+    
+    const changeFn = jest.fn(() => {
+      console.log(user.age)
+    })
+    
+    effect(changeFn)
+    
+    expect(changeFn).toHaveBeenCalledTimes(1)
+    user.age = 18
+    
+    expect(changeFn).toHaveBeenCalledTimes(1)
+
+  })
+
+  test('值改变才触发响应-NaN', () => {
+    const user = reactive({ age: NaN })
+    
+    const changeFn = jest.fn(() => {
+      console.log(user.age)
+    })
+    
+    effect(changeFn)
+    
+    expect(changeFn).toHaveBeenCalledTimes(1)
+    user.age = NaN
+    
+    expect(changeFn).toHaveBeenCalledTimes(1)
+
+  })
+
 })

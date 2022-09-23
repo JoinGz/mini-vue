@@ -56,8 +56,11 @@ function createSet() {
       const overLength = Number(key) >= org.length
       label = overLength ? triggerType.ADD : triggerType.SET
     }
+    const oldValue = org[key]
     const reuslt = Reflect.set(org, key, toRow(value))
-    trigger(org, key, label, value)
+    if (hasChanged(oldValue, value)) {
+      trigger(org, key, label, value)
+    }
     return reuslt
   }
 }
@@ -111,4 +114,10 @@ function deleteProperty(target: object, key: PropertyKey) {
 
     return res
 
+}
+
+
+
+function hasChanged(oldValue: any, value: any) {
+  return !Object.is(oldValue, value)
 }
