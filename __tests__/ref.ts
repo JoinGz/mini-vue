@@ -1,6 +1,6 @@
 import { effect } from "../src/reactivity/effect";
 import { reactive } from "../src/reactivity/reactive";
-import { isRef, proxyRef, proxyRef_my, ref, unRef } from "../src/reactivity/ref";
+import { isRef, proxyRef, proxyRef_my, ref, toRef, toRefs, unRef } from "../src/reactivity/ref";
 
 describe('ref', () => {
 
@@ -111,6 +111,44 @@ describe('ref', () => {
     expect(obj.skill.value[0]).toBe('js')
     expect(proxtRefObj.skill[0]).toBe('js')
 
+  })
+
+  test('toRef', () => {
+    const user = reactive({ age: 18 })
+    const userRef = toRef(user, "age")
+
+    const changeFn = jest.fn(() => userRef.value++)
+
+    effect(changeFn)
+    expect(changeFn).toHaveBeenCalledTimes(1)
+    userRef.value++
+    expect(changeFn).toHaveBeenCalledTimes(2)
+    
+  })
+  test('toRefs', () => {
+    const user = reactive({ age: 18 })
+    const userRef = toRefs(user)
+
+    const changeFn = jest.fn(() => userRef.age.value++)
+
+    effect(changeFn)
+    expect(changeFn).toHaveBeenCalledTimes(1)
+    userRef.age.value++
+    expect(changeFn).toHaveBeenCalledTimes(2)
+    
+  })
+
+  test('toRefs', () => {
+    const user = reactive({ age: 18, skill: [1,2] })
+    const userRef = toRefs(user)
+
+    const changeFn = jest.fn(() => userRef.skill.value[1])
+
+    effect(changeFn)
+    expect(changeFn).toHaveBeenCalledTimes(1)
+    userRef.skill.value[1] = 1
+    expect(changeFn).toHaveBeenCalledTimes(2)
+    
   })
 
 })

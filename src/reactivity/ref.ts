@@ -95,3 +95,32 @@ export function proxyRef<T extends object>(target: T): ShallowUnwrapRef<T> {
     }
   }) as ShallowUnwrapRef<T>
 }
+
+export function toRefs(obj: object) {
+  const result: any = Array.isArray(obj) ? Array(obj.length) : {}
+  
+  for (const key in obj) {
+    result[key] = toRef(obj, key)
+  }
+  return result
+  
+}
+
+export function toRef(obj: Obj, key: string) {
+  const value = obj[key]
+  return isRef(value) ? value : new ObjectRef(obj, key)
+}
+
+class ObjectRef {
+  public readonly __v_isRef = true
+
+  constructor(private _obj: Obj, private _key: string) {
+    
+  }
+  get value() {
+    return this._obj[this._key]
+  }
+  set value(newVal) {
+    this._obj[this._key] = newVal
+  }
+}
