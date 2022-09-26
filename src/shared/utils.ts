@@ -1,4 +1,5 @@
 import { Obj, ReactiveFlags } from "../../types/base"
+import { pauseTracking, resetTracking } from "../reactivity/effect"
 
 export function isObject(obj: any) {
   return obj !== null && typeof obj === 'object'
@@ -32,18 +33,27 @@ export function isArray(value: any): value is Array<any>{
 
 export function createArrayInstrumentations() {
   const arrayInstrumentations: Obj = {}
-  ;['includes', 'indexOf', 'lastIndexOf'].forEach((fnName) => {
-    const originFn = Array.prototype[fnName as string]
-    arrayInstrumentations[fnName] = function (...arg: any[]) {
-      let res = originFn.apply(this, arg)
+    ; (['includes', 'indexOf', 'lastIndexOf'] as const).forEach((fnName) => {
+      const originFn = Array.prototype[fnName] as any
+      arrayInstrumentations[fnName] = function (...arg: any[]) {
+        let res = originFn.apply(this, arg)
 
-      if (res === false || res === -1) {
-        res = originFn.apply(this[ReactiveFlags['__v_row']], arg)
+        if (res === false || res === -1) {
+          res = originFn.apply(this[ReactiveFlags['__v_row']], arg)
+        }
+
+        return res
       }
-
-      return res
-    }
-  })
+    })
+    ; (['push', 'pop', 'shift', 'unshift', 'splice'] as const).forEach((fnName) => {
+      const originFn = Array.prototype[fnName] as any
+      arrayInstrumentations[fnName] = function (...arg: any[]) {
+        pauseTracking()
+        let res = originFn.apply(this, arg)
+        resetTracking()
+        return res
+      }
+    })
   return arrayInstrumentations
 }
 

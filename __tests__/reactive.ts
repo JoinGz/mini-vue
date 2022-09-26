@@ -331,6 +331,21 @@ describe('reactive', () => {
       const exist2 = arr.includes(obj)
       expect(exist2).toBe(true)
     })
+
+    test('隐式修改数组长度的原型方法', () => {
+      const arr = reactive<number[]>([])
+      // 第一个副作用函数
+      effect(() => {
+        arr.push(1)
+      })
+
+      // 第二个副作用函数
+      effect(() => {
+        arr.push(1)
+      })
+
+      expect(true).toBe(true)
+    })
   })
 
   test('值改变才触发响应', () => {

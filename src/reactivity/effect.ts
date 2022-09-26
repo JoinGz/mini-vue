@@ -189,3 +189,10 @@ export function triggerEffects(deps: any) {
 export function stop(fn: ReactiveEffectRunner) {
   fn._effect.stop()
 }
+
+export function resetTracking() {
+  shouldTrack = true
+}
+export function pauseTracking() {
+  shouldTrack = false
+}
