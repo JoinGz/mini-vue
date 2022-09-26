@@ -1,5 +1,12 @@
 import { effect } from '../src/reactivity/effect'
-import {isProxy, isReactive, isReadOnly, reactive, readOnly, shallowReadOnly} from '../src/reactivity/reactive'
+import {
+  isProxy,
+  isReactive,
+  isReadOnly,
+  reactive,
+  readOnly,
+  shallowReadOnly,
+} from '../src/reactivity/reactive'
 
 describe('reactive', () => {
   test('happy path', () => {
@@ -10,26 +17,29 @@ describe('reactive', () => {
 
     expect(isReactive(proxyObj)).toBe(true)
     expect(isReactive(obj)).toBe(false)
-    
   })
-  
+
   test('readOnly', () => {
-    const obj = { age: 1 } 
+    const obj = { age: 1 }
     const proxyObj = readOnly(obj)
     expect(proxyObj).not.toBe(obj)
     expect(proxyObj.age).toBe(1)
-    
+
     console.warn = jest.fn()
     proxyObj.age = 2
-    
+
     expect(console.warn).toBeCalled()
-    
+
     expect(isReadOnly(proxyObj)).toBe(true)
     expect(isReadOnly(obj)).toBe(false)
   })
 
   test('reactive子对象判断', () => {
-    const obj = { age: 1, skill: ["sing", {piano: 'level5'}] as {[key: string]: any}, someKey: {b: 6} } 
+    const obj = {
+      age: 1,
+      skill: ['sing', { piano: 'level5' }] as { [key: string]: any },
+      someKey: { b: 6 },
+    }
     const proxyObj = reactive(obj)
 
     expect(isReactive(proxyObj)).toBe(true)
@@ -37,22 +47,24 @@ describe('reactive', () => {
     expect(isReactive(proxyObj.someKey)).toBe(true)
     expect(isReactive(proxyObj.skill[1])).toBe(true)
 
-    let level;
+    let level
     effect(() => {
       level = proxyObj.skill[1].piano + '1 '
     })
 
     expect(level).toBe('level51 ')
-    
+
     proxyObj.skill[1].piano = 1
-    
+
     expect(level).toBe('11 ')
-
-
   })
 
   test('readOnly子对象判断', () => {
-    const obj = { age: 1, skill: ["sing", {piano: 'level5'}] as {[key: string]: any}, someKey: {b: 6} } 
+    const obj = {
+      age: 1,
+      skill: ['sing', { piano: 'level5' }] as { [key: string]: any },
+      someKey: { b: 6 },
+    }
     const proxyObj = readOnly(obj)
 
     expect(isReadOnly(proxyObj)).toBe(true)
@@ -62,7 +74,11 @@ describe('reactive', () => {
   })
 
   test('reactive子对象依赖', () => {
-    const obj = { age: 1, skill: ["sing", {piano: 'level5'}] as {[key: string]: any}, someKey: {b: 6} } 
+    const obj = {
+      age: 1,
+      skill: ['sing', { piano: 'level5' }] as { [key: string]: any },
+      someKey: { b: 6 },
+    }
     const proxyObj = reactive(obj)
 
     expect(isReactive(proxyObj)).toBe(true)
@@ -77,12 +93,10 @@ describe('reactive', () => {
     effect(log)
 
     expect(log).toBeCalledTimes(1)
-    
+
     proxyObj.skill = [1]
-    
+
     expect(log).toBeCalledTimes(2)
-
-
   })
 
   test('shallow->readonly', () => {
@@ -93,15 +107,14 @@ describe('reactive', () => {
     expect(isReadOnly(proxyObj.foo)).toBe(false)
   })
 
-
   test('isProxy', () => {
     const obj = { a: 1, foo: { b: 2 } }
     const shallowRead = shallowReadOnly(obj)
     const readOnlyObj = readOnly(obj)
     const reactiveObj = reactive(obj)
 
-    expect(shallowRead).not.toBe(readOnlyObj);
-    expect(readOnlyObj).not.toBe(reactiveObj);
+    expect(shallowRead).not.toBe(readOnlyObj)
+    expect(readOnlyObj).not.toBe(reactiveObj)
 
     expect(isProxy(shallowRead)).toBe(true)
     expect(isProxy(shallowRead.foo)).toBe(false)
@@ -111,16 +124,13 @@ describe('reactive', () => {
 
     expect(isProxy(reactiveObj)).toBe(true)
     expect(isProxy(reactiveObj.foo)).toBe(true)
-
-
   })
 
   test('in 关键字依赖收集', () => {
     const user = reactive({ age: 10 })
 
     const inFunc = jest.fn(() => {
-      if ('age' in user)
-      console.log(`age is tracked`)
+      if ('age' in user) console.log(`age is tracked`)
     })
 
     expect(inFunc).toBeCalledTimes(0)
@@ -128,15 +138,13 @@ describe('reactive', () => {
     expect(inFunc).toBeCalledTimes(1)
     user.age = 20
     expect(inFunc).toBeCalledTimes(2)
-
   })
 
   test('for in 语句依赖收集', () => {
     const user = reactive({ age: 10 })
 
     const inFunc = jest.fn(() => {
-      for (let key in user)
-      console.log(`age is tracked`)
+      for (let key in user) console.log(`age is tracked`)
     })
 
     expect(inFunc).toBeCalledTimes(0)
@@ -145,15 +153,13 @@ describe('reactive', () => {
     // @ts-ignore
     user.name = 20
     expect(inFunc).toBeCalledTimes(2)
-
   })
 
   test('for in 语句依赖收集-改变值不会重新触发', () => {
     const user = reactive({ age: 10 })
 
     const inFunc = jest.fn(() => {
-      for (let key in user)
-      console.log(`age is tracked`)
+      for (let key in user) console.log(`age is tracked`)
     })
 
     expect(inFunc).toBeCalledTimes(0)
@@ -161,16 +167,13 @@ describe('reactive', () => {
     expect(inFunc).toBeCalledTimes(1)
     user.age = 20
     expect(inFunc).toBeCalledTimes(1)
-
   })
 
-
   test('delete 关键字依赖触发', () => {
-    const user = reactive<{age?: number}>({ age: 10 })
+    const user = reactive<{ age?: number }>({ age: 10 })
 
     const inFunc = jest.fn(() => {
-      for (let key in user)
-      console.log(`age is tracked`)
+      for (let key in user) console.log(`age is tracked`)
     })
 
     expect(inFunc).toBeCalledTimes(0)
@@ -178,15 +181,13 @@ describe('reactive', () => {
     expect(inFunc).toBeCalledTimes(1)
     delete user.age
     expect(inFunc).toBeCalledTimes(2)
-
   })
 
   test('for in 、in、 reactive依赖', () => {
-    const user = reactive({ age: 10,name: 'test' })
+    const user = reactive({ age: 10, name: 'test' })
 
     const inFunc = jest.fn(() => {
-      for (let key in user)
-        console.log(`age is tracked`)
+      for (let key in user) console.log(`age is tracked`)
       if ('age' in user) {
         console.log(`age is user`)
       }
@@ -206,9 +207,7 @@ describe('reactive', () => {
     // @ts-ignore
     delete user.age
     expect(inFunc).toBeCalledTimes(5)
-
   })
-
 
   describe('数组的响应式', () => {
     test('happy path', () => {
@@ -263,7 +262,6 @@ describe('reactive', () => {
     })
 
     test('length改变-数组清空-没依赖的不执行', () => {
-
       const arr = reactive([1, 2, 3])
 
       const arrChangedCb = jest.fn(() => {
@@ -311,14 +309,12 @@ describe('reactive', () => {
       effect(arrChangedCb)
 
       expect(arrChangedCb).toHaveBeenCalledTimes(1)
-      
+
       arr[1] = 5
       expect(arrChangedCb).toHaveBeenCalledTimes(2)
-      
 
       arr.length = 6
       expect(arrChangedCb).toHaveBeenCalledTimes(3)
-
     })
 
     test('array->includes', () => {
@@ -350,34 +346,87 @@ describe('reactive', () => {
 
   test('值改变才触发响应', () => {
     const user = reactive({ age: 18 })
-    
+
     const changeFn = jest.fn(() => {
       console.log(user.age)
     })
-    
+
     effect(changeFn)
-    
+
     expect(changeFn).toHaveBeenCalledTimes(1)
     user.age = 18
-    
-    expect(changeFn).toHaveBeenCalledTimes(1)
 
+    expect(changeFn).toHaveBeenCalledTimes(1)
   })
 
   test('值改变才触发响应-NaN', () => {
     const user = reactive({ age: NaN })
-    
+
     const changeFn = jest.fn(() => {
       console.log(user.age)
     })
-    
+
     effect(changeFn)
-    
+
     expect(changeFn).toHaveBeenCalledTimes(1)
     user.age = NaN
-    
-    expect(changeFn).toHaveBeenCalledTimes(1)
 
+    expect(changeFn).toHaveBeenCalledTimes(1)
   })
 
+  test('代理map、set', () => {
+    const map = new Map()
+    const user = reactive(map)
+
+    const changeFn = jest.fn(() => {
+      console.log(user.get('age'))
+    })
+
+    effect(changeFn)
+
+    expect(changeFn).toHaveBeenCalledTimes(1)
+
+    user.set('age', 19)
+
+    expect(changeFn).toHaveBeenCalledTimes(2)
+  })
+
+  describe('代理map、set', () => {
+    test('happyPath', () => {
+      const map = new Map()
+      const user = reactive(map)
+
+      const changeFn = jest.fn(() => {
+        console.log(user.get('age'))
+      })
+
+      effect(changeFn)
+
+      expect(changeFn).toHaveBeenCalledTimes(1)
+
+      user.set('age', 19)
+
+      expect(changeFn).toHaveBeenCalledTimes(2)
+
+      expect(user.size).toBe(1)
+    })
+
+    test('size属性的正确触发', () => {
+      const p = reactive(new Set([1, 2, 3]))
+
+      const changeFn = jest.fn(() => {
+        console.log(p.size)
+      })
+
+      effect(changeFn)
+      expect(changeFn).toHaveBeenCalledTimes(1)
+      
+      p.add(3)
+      expect(changeFn).toHaveBeenCalledTimes(1)
+      
+      p.add(4)
+      expect(changeFn).toHaveBeenCalledTimes(2)
+
+    })
+  })
 })

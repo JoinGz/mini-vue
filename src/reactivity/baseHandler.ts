@@ -2,8 +2,8 @@
 
 import { track, trigger } from "./effect"
 import { ReactiveFlags } from '../../types/base'
-import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnlyMap, toRow } from "./reactive"
-import { createArrayInstrumentations, hasChanged, isArray, isObject } from "../shared/utils"
+import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnlyMap, toRow as toRaw } from "./reactive"
+import { createArrayInstrumentations, createMapInstrumentations, hasChanged, isArray, isMap, isObject, isSet } from "../shared/utils"
 export const iterate_key = Symbol()
 
 export const enum  triggerType {
@@ -15,6 +15,8 @@ export const enum  triggerType {
 
 
 const arrayInstrumentations = createArrayInstrumentations()
+
+const mapInstrumentations = createMapInstrumentations()
 
 // 抽离get, set
 function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: boolean} = {}) {
@@ -34,6 +36,16 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
 
     if (isArray(org) && arrayInstrumentations.hasOwnProperty(key)) {
       return Reflect.get(arrayInstrumentations, key, receiver)
+    }
+    if (isMap(org) || isSet(org)) {
+      if (key === 'size') {
+        track(org, iterate_key)
+        return Reflect.get(org, key, org)
+      }
+      if (mapInstrumentations.hasOwnProperty(key)) {
+        return Reflect.get(mapInstrumentations, key, receiver)
+      }
+      return Reflect.get(org, key).bind(org)
     }
 
 
@@ -57,6 +69,7 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
 
 function createSet() {
   return function <T extends object>(org: T, key: keyof T, value: any) {
+    const rawValue = toRaw(value)
     let label: triggerType = triggerType.ADD;
     if (org.hasOwnProperty(key)) {
       label = triggerType.SET
@@ -66,7 +79,7 @@ function createSet() {
       label = overLength ? triggerType.ADD : triggerType.SET
     }
     const oldValue = org[key]
-    const reuslt = Reflect.set(org, key, toRow(value))
+    const reuslt = Reflect.set(org, key, rawValue)
     if (hasChanged(oldValue, value)) {
       trigger(org, key, label, value)
     }

@@ -1,5 +1,6 @@
 import { Obj, ReactiveFlags } from "../../types/base"
-import { pauseTracking, resetTracking } from "../reactivity/effect"
+import { triggerType } from "../reactivity/baseHandler"
+import { pauseTracking, resetTracking, track, trigger } from "../reactivity/effect"
 
 export function isObject(obj: any) {
   return obj !== null && typeof obj === 'object'
@@ -30,6 +31,12 @@ export const camelize = (str: string) => {
 export function isArray(value: any): value is Array<any>{
   return Array.isArray(value)
 }
+export function isMap(value: any): value is Map<any, any>{
+  return Object.prototype.toString.call(value) === '[object Map]'
+}
+export function isSet(value: any): value is Set<any>{
+  return Object.prototype.toString.call(value) === '[object Set]'
+}
 
 export function createArrayInstrumentations() {
   const arrayInstrumentations: Obj = {}
@@ -55,6 +62,47 @@ export function createArrayInstrumentations() {
       }
     })
   return arrayInstrumentations
+}
+
+export function createMapInstrumentations() {
+  const mapInstrumentations:Obj = {};
+  ; (['set'] as const).forEach((fnName) => {
+
+    mapInstrumentations[fnName] = function (...arg: any[]) {
+      let row = this[ReactiveFlags['__v_row']]
+
+      let key = arg[0]
+
+      let res = row[fnName](...arg)
+
+      trigger(row, key)
+
+      return res
+    }
+  })
+  mapInstrumentations['get'] = function (...arg: any) {
+    let row = this[ReactiveFlags['__v_row']]
+    let key = arg[0]
+    track(row, key)
+    let res = row['get'](...arg)
+
+    return res
+  }
+  mapInstrumentations['add'] = function (...arg: any) {
+    let row = this[ReactiveFlags['__v_row']]
+    let key = arg[0]
+    const has = row.has(key)
+    let res = row['add'](...arg)
+
+
+    if (!has) {
+      trigger(row, key, triggerType.ADD)
+    }
+
+
+    return  res
+  }
+  return mapInstrumentations
 }
 
 export const EMPTY_OBJ = {}
