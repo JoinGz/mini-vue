@@ -1,7 +1,7 @@
 import { Obj } from "../../types/base"
 import { isTracking, trackEffect, triggerEffects } from "./effect"
 import { reactive } from "./reactive"
-import { hasChanged, isObject } from "../shared/utils"
+import { hasChanged, isArray, isObject } from "../shared/utils"
 
 type refImp = string | number | Obj
 
@@ -97,7 +97,7 @@ export function proxyRef<T extends object>(target: T): ShallowUnwrapRef<T> {
 }
 
 export function toRefs(obj: object) {
-  const result: any = Array.isArray(obj) ? Array(obj.length) : {}
+  const result: any = isArray(obj) ? Array(obj.length) : {}
   
   for (const key in obj) {
     result[key] = toRef(obj, key)

@@ -320,6 +320,17 @@ describe('reactive', () => {
       expect(arrChangedCb).toHaveBeenCalledTimes(3)
 
     })
+
+    test('array->includes', () => {
+      const obj = {}
+      const arr = reactive([obj])
+
+      const exist = arr.includes(arr[0])
+      expect(exist).toBe(true)
+
+      const exist2 = arr.includes(obj)
+      expect(exist2).toBe(true)
+    })
   })
 
   test('值改变才触发响应', () => {

@@ -3,7 +3,7 @@
 import { track, trigger } from "./effect"
 import { ReactiveFlags } from '../../types/base'
 import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnlyMap, toRow } from "./reactive"
-import { isObject } from "../shared/utils"
+import { createArrayInstrumentations, hasChanged, isArray, isObject } from "../shared/utils"
 export const iterate_key = Symbol()
 
 export const enum  triggerType {
@@ -11,6 +11,10 @@ export const enum  triggerType {
   'DELETED',
   'SET'
 }
+
+
+
+const arrayInstrumentations = createArrayInstrumentations()
 
 // 抽离get, set
 function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: boolean} = {}) {
@@ -25,8 +29,13 @@ function createGetter(isReadOnly: boolean = false, options: {shallowReadOnly?: b
         return org
       }
     }
-
+    
     const result = Reflect.get(org, key)
+
+    if (isArray(org) && arrayInstrumentations.hasOwnProperty(key)) {
+      return Reflect.get(arrayInstrumentations, key, receiver)
+    }
+
 
     // 如果是shallowReadOnly就可以
     if (options.shallowReadOnly) {
@@ -114,10 +123,4 @@ function deleteProperty(target: object, key: PropertyKey) {
 
     return res
 
-}
-
-
-
-function hasChanged(oldValue: any, value: any) {
-  return !Object.is(oldValue, value)
 }
