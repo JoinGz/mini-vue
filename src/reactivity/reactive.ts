@@ -36,7 +36,7 @@ export function shallowReadOnly<T extends object>(row: T): T {
   return createActiveObject(row, shallowReadonlyHandler, shallowReadOnlyMap) as T
 }
 
-export function toRow<T>(obj: T): T {
+export function toRaw<T>(obj: T): T {
   const rowObj = obj && (obj as any)[ReactiveFlags['__v_row']]
-  return rowObj ? toRow(rowObj) : obj
+  return rowObj ? toRaw(rowObj) : obj
 }

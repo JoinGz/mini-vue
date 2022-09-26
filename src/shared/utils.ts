@@ -1,6 +1,7 @@
 import { Obj, ReactiveFlags } from "../../types/base"
 import { triggerType } from "../reactivity/baseHandler"
 import { pauseTracking, resetTracking, track, trigger } from "../reactivity/effect"
+import { reactive, toRaw } from "../reactivity/reactive"
 
 export function isObject(obj: any) {
   return obj !== null && typeof obj === 'object'
@@ -72,10 +73,17 @@ export function createMapInstrumentations() {
       let row = this[ReactiveFlags['__v_row']]
 
       let key = arg[0]
+      let newValue = toRaw(arg[1])
 
-      let res = row[fnName](...arg)
+      const had = row.has(key)
 
-      trigger(row, key)
+      let oldValue = toRaw(row.get(key));
+
+      let res = row[fnName](key, newValue)
+
+      if (hasChanged(oldValue, newValue)) {
+        trigger(row, key, had ? triggerType.SET : triggerType.ADD)
+      }
 
       return res
     }
@@ -83,10 +91,12 @@ export function createMapInstrumentations() {
   mapInstrumentations['get'] = function (...arg: any) {
     let row = this[ReactiveFlags['__v_row']]
     let key = arg[0]
+    const had = row.has(key)
     track(row, key)
-    let res = row['get'](...arg)
-
-    return res
+    if (had) {
+      let res = row['get'](...arg)
+      return isObject(res) ? reactive(res) : res
+    }
   }
   mapInstrumentations['add'] = function (...arg: any) {
     let row = this[ReactiveFlags['__v_row']]
@@ -102,6 +112,20 @@ export function createMapInstrumentations() {
 
     return  res
   }
+
+  mapInstrumentations['delete'] = function (...arg: any) {
+    let row = this[ReactiveFlags['__v_row']]
+    let key = arg[0]
+    const has = row.has(key)
+    let res = row['delete'](...arg)
+
+
+    if (has && res) {
+      trigger(row, key, triggerType.DELETED)
+    }
+    return  res
+  }
+
   return mapInstrumentations
 }
 

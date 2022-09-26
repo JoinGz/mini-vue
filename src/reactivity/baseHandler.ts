@@ -2,7 +2,7 @@
 
 import { track, trigger } from "./effect"
 import { ReactiveFlags } from '../../types/base'
-import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnlyMap, toRow as toRaw } from "./reactive"
+import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnlyMap,  toRaw } from "./reactive"
 import { createArrayInstrumentations, createMapInstrumentations, hasChanged, isArray, isMap, isObject, isSet } from "../shared/utils"
 export const iterate_key = Symbol()
 
