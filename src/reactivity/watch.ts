@@ -6,7 +6,7 @@ type watchOptions = {
 }
 
 type watchAim = Obj | ((...arg: any[]) => any)
-type anyFunction = (...arg: any[]) => any
+export type anyFunction = (...arg: any[]) => any
 
 export function watch(
   source: watchAim,

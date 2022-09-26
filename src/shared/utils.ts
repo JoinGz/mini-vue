@@ -1,7 +1,8 @@
 import { Obj, ReactiveFlags } from "../../types/base"
-import { triggerType } from "../reactivity/baseHandler"
+import { iterate_key, triggerType } from "../reactivity/baseHandler"
 import { pauseTracking, resetTracking, track, trigger } from "../reactivity/effect"
 import { reactive, toRaw } from "../reactivity/reactive"
+import { anyFunction } from "../reactivity/watch"
 
 export function isObject(obj: any) {
   return obj !== null && typeof obj === 'object'
@@ -124,6 +125,16 @@ export function createMapInstrumentations() {
       trigger(row, key, triggerType.DELETED)
     }
     return  res
+  }
+
+  mapInstrumentations['forEach'] = function (cb: anyFunction, thisArg: any) {
+    let row = this[ReactiveFlags['__v_row']]
+    track(row, iterate_key)
+    const warp = (v: any) => isObject(v) ? reactive(v) : v
+    row.forEach((item: any, key:any) => {
+      cb.call(thisArg, warp(item), warp(key), this)
+    })
+
   }
 
   return mapInstrumentations

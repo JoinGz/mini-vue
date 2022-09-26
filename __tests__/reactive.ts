@@ -468,5 +468,58 @@ describe('reactive', () => {
       expect(changeFn).toHaveBeenCalledTimes(1)
     })
 
+    test('forEach', () => {
+      const p = reactive(new Map([[{ key: 1 }, { value: 1 }]]))
+
+      const changeFn = jest.fn(() => {
+        p.forEach(function (value, key) {
+          console.log(value) // { value: 1 }
+          console.log(key) // { key: 1 }
+        })
+      })
+      effect(changeFn)
+
+      expect(changeFn).toHaveBeenCalledTimes(1)
+      // 能够触发响应
+      p.set({ key: 2 }, { value: 2 })
+      expect(changeFn).toHaveBeenCalledTimes(2)
+    })
+
+
+    test('forEach callback也应该是响应式', () => {
+      const key = { key: 1 }
+      const value = new Set([1, 2, 3])
+      const p = reactive(new Map([[key, value]])) as any
+
+      const changeFn = jest.fn(() => {
+        p.forEach(function (value: any, key: any) {
+          console.log(value.size) // 3
+        })
+      })
+      effect(changeFn)
+
+      expect(changeFn).toHaveBeenCalledTimes(1)
+      
+      p.get(key).delete(1)
+      expect(changeFn).toHaveBeenCalledTimes(2)
+    })
+
+    test('Map值改变也应该执行回调', () => {
+      const key = { key: 1 }
+      const value = new Set([1, 2, 3])
+      const p = reactive(new Map([[key, value]])) as any
+
+      const changeFn = jest.fn(() => {
+        p.forEach(function (value: any, key: any) {
+        })
+      })
+      effect(changeFn)
+
+      expect(changeFn).toHaveBeenCalledTimes(1)
+      
+      p.set(key, 1)
+      expect(changeFn).toHaveBeenCalledTimes(2)
+    })
+
   })
 })

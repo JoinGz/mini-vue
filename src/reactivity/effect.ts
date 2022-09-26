@@ -1,3 +1,4 @@
+import { isMap } from "../shared/utils"
 import { triggerType, iterate_key } from "./baseHandler"
 
 type effectOptions = {
@@ -155,11 +156,15 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
     }
   }
 
-  if (label === triggerType.ADD || label === triggerType.DELETED) {
+  if (
+    label === triggerType.ADD ||
+    label === triggerType.DELETED ||
+    (isMap(row) && label === triggerType.SET)
+  ) {
     let ownkeysDeps = keyDeps.get(iterate_key)
     if (ownkeysDeps) {
       for (const dep of ownkeysDeps) {
-          deps.add(dep)
+        deps.add(dep)
       }
     }
   }
