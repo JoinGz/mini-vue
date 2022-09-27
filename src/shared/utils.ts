@@ -1,5 +1,5 @@
 import { Obj, ReactiveFlags } from "../../types/base"
-import { iterate_key, triggerType } from "../reactivity/baseHandler"
+import { iterate_key, map_key_iterate_key, triggerType } from "../reactivity/baseHandler"
 import { pauseTracking, resetTracking, track, trigger } from "../reactivity/effect"
 import { reactive, toRaw } from "../reactivity/reactive"
 import { anyFunction } from "../reactivity/watch"
@@ -67,7 +67,8 @@ export function createArrayInstrumentations() {
 }
 
 export function createMapInstrumentations() {
-  const mapInstrumentations:Obj = {};
+  const mapInstrumentations: Obj = {};
+  const warp = (v: any) => isObject(v) ? reactive(v) : v
   ; (['set'] as const).forEach((fnName) => {
 
     mapInstrumentations[fnName] = function (...arg: any[]) {
@@ -130,12 +131,50 @@ export function createMapInstrumentations() {
   mapInstrumentations['forEach'] = function (cb: anyFunction, thisArg: any) {
     let row = this[ReactiveFlags['__v_row']]
     track(row, iterate_key)
-    const warp = (v: any) => isObject(v) ? reactive(v) : v
     row.forEach((item: any, key:any) => {
       cb.call(thisArg, warp(item), warp(key), this)
     })
 
   }
+
+  mapInstrumentations[Symbol.iterator] = mapInstrumentations['entries'] = iteratorMehtod
+
+  // ts: 将this放在函数参数列表上声明类型即可，使用的时候this不会干扰形参传入顺序
+  function iteratorMehtod(this: any) {
+    const raw = this[ReactiveFlags['__v_row']]
+
+    const res = Reflect.get(raw, Symbol.iterator, raw).bind(raw)()
+    track(raw, iterate_key)
+    return {
+      next() {
+        const { value, done } = res.next()
+        return { value: value ? [warp(value[0]), warp(value[1])] : value, done }
+      },
+      [Symbol.iterator]() {
+        return this
+      }
+    }
+  }
+
+  ;['values', 'keys'].forEach(fnName => {
+
+    mapInstrumentations[fnName] = function () {
+      const raw = this[ReactiveFlags['__v_row']]
+      const res = Reflect.get(raw, fnName, raw).bind(raw)()
+      track(raw, fnName === 'keys'? map_key_iterate_key : iterate_key)
+      return {
+        next() {
+          const { value, done } = res.next()
+          return { value: value ? warp(value) : value, done }
+        },
+        [Symbol.iterator]() {
+          return this
+        }
+      }
+      
+  
+    }
+  })
 
   return mapInstrumentations
 }

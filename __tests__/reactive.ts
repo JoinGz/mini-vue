@@ -374,23 +374,6 @@ describe('reactive', () => {
     expect(changeFn).toHaveBeenCalledTimes(1)
   })
 
-  test('代理map、set', () => {
-    const map = new Map()
-    const user = reactive(map)
-
-    const changeFn = jest.fn(() => {
-      console.log(user.get('age'))
-    })
-
-    effect(changeFn)
-
-    expect(changeFn).toHaveBeenCalledTimes(1)
-
-    user.set('age', 19)
-
-    expect(changeFn).toHaveBeenCalledTimes(2)
-  })
-
   describe('代理map、set', () => {
     test('happyPath', () => {
       const map = new Map()
@@ -519,6 +502,120 @@ describe('reactive', () => {
       
       p.set(key, 1)
       expect(changeFn).toHaveBeenCalledTimes(2)
+    })
+
+
+    describe('迭代器方法处理', () => {
+      test('happyPath', () => {
+        const p = reactive(
+          new Map([
+            ['key1', 'value1'],
+            ['key2', 'value2'],
+          ])
+        )
+
+        const changeFn = jest.fn(() => {
+          for (const [key, value] of p) {
+            console.log(key, value)
+          }
+        })
+
+        effect(changeFn)
+
+        expect(changeFn).toHaveBeenCalledTimes(1)
+        p.set('key3', 'value3')
+        expect(changeFn).toHaveBeenCalledTimes(2)
+      })
+      test('迭代的对象也应该是响应式', () => {
+        const p = reactive(
+          new Map<string, any>([
+            ['key1', 'value1'],
+            ['key2', {val: 'value2'}],
+          ])
+        )
+
+        let value2:any;
+
+        for (const [key, value] of p) {
+          value2 = value
+        }
+        const changeFn = jest.fn(() => {
+          console.log(value2.val)
+        })
+
+        effect(changeFn)
+
+        expect(changeFn).toHaveBeenCalledTimes(1)
+        value2.val = 1
+        expect(changeFn).toHaveBeenCalledTimes(2)
+      })
+
+      test('entries', () => {
+        const p = reactive(
+          new Map([
+            ['key1', 'value1'],
+            ['key2', 'value2'],
+          ])
+        )
+
+        const changeFn = jest.fn(() => {
+          for (const [key, value] of p.entries()) {
+            console.log(key, value)
+          }
+        })
+
+        effect(changeFn)
+
+        expect(changeFn).toHaveBeenCalledTimes(1)
+        p.set('key3', 'value3')
+        expect(changeFn).toHaveBeenCalledTimes(2)
+      })
+
+      test('values', () => {
+        const p = reactive(
+          new Map([
+            ['key1', 'value1'],
+            ['key2', 'value2'],
+          ])
+        )
+
+        const changeFn = jest.fn(() => {
+          for (const value of p.values()) {
+            console.log(value)
+          }
+        })
+
+        effect(changeFn)
+
+        expect(changeFn).toHaveBeenCalledTimes(1)
+        p.set('key3', 'value3')
+        expect(changeFn).toHaveBeenCalledTimes(2)
+      })
+
+      test('keys', () => {
+        const p = reactive(
+          new Map([
+            ['key1', 'value1'],
+            ['key2', 'value2'],
+          ])
+        )
+
+        const changeFn = jest.fn(() => {
+          for (const value of p.keys()) {
+            console.log(value)
+          }
+        })
+
+        effect(changeFn)
+
+        expect(changeFn).toHaveBeenCalledTimes(1)
+        // key 并未改变
+        p.set('key2', 'value3')
+        expect(changeFn).toHaveBeenCalledTimes(1)
+        // 新增了一个key
+        p.set('key3', 'value3')
+        expect(changeFn).toHaveBeenCalledTimes(2)
+      })
     })
 
   })

@@ -1,5 +1,5 @@
 import { isMap } from "../shared/utils"
-import { triggerType, iterate_key } from "./baseHandler"
+import { triggerType, iterate_key, map_key_iterate_key } from "./baseHandler"
 
 type effectOptions = {
   scheduler?: () => void,
@@ -164,6 +164,18 @@ export function trigger(row: { [key: string]: any }, key: string | symbol | numb
     let ownkeysDeps = keyDeps.get(iterate_key)
     if (ownkeysDeps) {
       for (const dep of ownkeysDeps) {
+        deps.add(dep)
+      }
+    }
+  }
+  
+  if (
+    isMap(row) &&
+    (label === triggerType.ADD || label === triggerType.DELETED)
+  ) {
+    let mapkeysDeps = keyDeps.get(map_key_iterate_key)
+    if (mapkeysDeps) {
+      for (const dep of mapkeysDeps) {
         deps.add(dep)
       }
     }
