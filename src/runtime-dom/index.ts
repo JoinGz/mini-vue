@@ -9,20 +9,48 @@ const createElement = (type: string) => {
   return document.createElement(type)
 }
 
-const insert = (dom: HTMLElement, el: HTMLElement, anchor: HTMLElement | null) => {
+const insert = (dom: Element, el: Element, anchor: Element | null) => {
   // dom.append(el)
   dom.insertBefore(el, anchor)
 }
 
-const customsPropsHandler = (el: HTMLElement, key: string, preValue: any, nowValue: any) => {
+function showsetProps(el: Element, key: string,) {
+  if (el.tagName === 'INPUT' || key === 'form')
+    return false
+  return key in el
+}
 
+const customsPropsHandler = (el: Element & {_vei: any}, key: string, preValue: any, nowValue: any) => {
+
+  if (key === 'class') {
+    el.className = nowValue || ''
+  }else
   if (isOn(key)) {
     const eventName = key.slice(2).toLowerCase()
-    el.addEventListener(eventName, nowValue)
+    let lastEvent = el._vei
+    if (lastEvent) {
+      if (!nowValue) {
+        el.removeEventListener(eventName, lastEvent.handle)
+        return;
+      }
+      lastEvent.handle = nowValue
+    } else {
+      lastEvent = el._vei = {
+        handle: nowValue
+      }
+      el.addEventListener(eventName, lastEvent.handle)
+    }
   } else {
     if (nowValue == null) {
       el.removeAttribute(key)
     } else {
+      if (showsetProps(el, key)) {
+        if (typeof (el as any)[key] === 'boolean' && nowValue === '') {
+           (el as any)[key] = true
+        } else {
+           (el as any)[key] = nowValue
+        }
+      }
       el.setAttribute(key, nowValue)
     }
   }
@@ -33,14 +61,14 @@ function isOn(key: string) {
   return /^on[A-Z]/.test(key)
 }
 
-const remove = (el: HTMLElement) => {
+const remove = (el: Element) => {
   const parent = el.parentElement
   if (parent) {
     parent.removeChild(el)
   }
 }
 
-const setElementText = (el: HTMLElement, value: string) => {
+const setElementText = (el: Element, value: string) => {
   // const textNode = document.createTextNode(value)
   // el.appendChild(textNode)
 

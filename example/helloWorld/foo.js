@@ -17,6 +17,7 @@ export default {
     const btn = h('button', {
       onClick: this.click
     }, 'emitBtn')
-    return h('div', null, [p, btn])
+    const input = h('input', {disabled: ""}, 'button')
+    return h('div', null, [p, btn, input])
   }
 }
