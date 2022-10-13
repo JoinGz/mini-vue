@@ -22,6 +22,8 @@ export const app = {
       attrData.value = {"foo": 'newFoo'}
     }
 
+    const clickFnShow =  ref(false)
+
     return {
       count,
       msg: 'p-one',
@@ -29,7 +31,8 @@ export const app = {
       attrData,
       changeAttrDataName,
       changeAttrData,
-      changeAttrDataId
+      changeAttrDataId,
+      clickFnShow
     }
   },
   render() {
@@ -37,14 +40,18 @@ export const app = {
       'div',
       {
         class: 'class',
-        ...this.attrData
+        ...this.attrData,
+        onClick: this.clickFnShow ? ()=>{console.log("clicked")} : null
       },
       [
-        h('p', { onClick: () => console.log('clicked') }, this.count),
+        h('p', { onClick: () => console.log('clicked') }, this.count + "" /*render中判断的为string,才是子元素string类型*/),
         h('button', { onClick: () => this.onAddCount() }, 'changeCount'),
         h('button', { onClick: () => this.changeAttrDataId() }, 'changeAttrDataId->改变id'),
         h('button', { onClick: () => this.changeAttrDataName() }, 'changeAttrDataName->name=null->删除name'),
         h('button', { onClick: () => this.changeAttrData() }, 'changeAttrData->重新复制->删除name,id'),
+        h('button', { onClick: (...arg) => console.log(...arg) }, 'click_test'),
+        h('button', { onClick: [(...arg) => console.log(...arg), ()=>console.log(`end`)] }, 'click_test muliti function'),
+        h('button', { onClick: () => { this.clickFnShow = true } },'changeClickFnShow'),
       ]
     )
   },

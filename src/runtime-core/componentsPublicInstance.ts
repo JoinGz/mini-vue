@@ -28,4 +28,12 @@ export const publicInstanceProxyHandler = {
       return publicPropertiesMaps[key](instance)
     }
   },
+  set(origin:any, key: string, newValue: any) {
+    // console.log(origin, key, newValue)
+    if (hasOwn(origin._.setupState, key)) {
+      return Reflect.set(origin._.setupState, key ,newValue)
+    }
+    // set 待处理
+    return Reflect.set(origin._, key ,newValue)
+  }
 }

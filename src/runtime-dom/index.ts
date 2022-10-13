@@ -4,6 +4,7 @@ export * from '../runtime-core/index'
 export * from '../shared/toDisplayString'
 import { Obj } from '../../types/base'
 import { createRender } from '../runtime-core/renderer'
+import { isArray } from '../shared/utils'
 
 const createElement = (type: string) => {
   return document.createElement(type)
@@ -25,20 +26,36 @@ const customsPropsHandler = (el: Element & {_vei: any}, key: string, preValue: a
   if (key === 'class') {
     el.className = nowValue || ''
   }else
-  if (isOn(key)) {
+    if (isOn(key)) {
     const eventName = key.slice(2).toLowerCase()
-    let lastEvent = el._vei
-    if (lastEvent) {
+    let lastEvent = el._vei || (el._vei = {})
+    if (lastEvent[key]) {
       if (!nowValue) {
-        el.removeEventListener(eventName, lastEvent.handle)
+        el.removeEventListener(eventName, lastEvent[key].handle)
         return;
       }
-      lastEvent.handle = nowValue
+      lastEvent.bindTime = performance.now()
+
+      lastEvent[key].value = nowValue
     } else {
-      lastEvent = el._vei = {
-        handle: nowValue
+      lastEvent.bindTime = performance.now()
+      lastEvent[key] = el._vei[key] = {
+        value: nowValue
       }
-      el.addEventListener(eventName, lastEvent.handle)
+      lastEvent[key].handle = (...arg: any) => {
+        // 如果事件发生的时间早于事件绑定的时间则不执行
+        if (arg[0].timeStamp < lastEvent.bindTime) {
+          return 
+        }
+        if (isArray(lastEvent[key].value)) {
+          lastEvent[key].value.forEach((fn: any) => {
+            fn(...arg)
+          });
+        } else {
+          lastEvent[key].value && lastEvent[key].value(...arg)
+        }
+      }
+      el.addEventListener(eventName, lastEvent[key].handle)
     }
   } else {
     if (nowValue == null) {
