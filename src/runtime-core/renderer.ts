@@ -2,7 +2,7 @@ import { instance, vnode, parentInstance, props, children, Obj } from '../../typ
 import { effect } from '../reactivity/effect'
 import { getSequence } from '../shared/getSequence'
 import { ShapeFlags } from '../shared/shapeFlags'
-import { EMPTY_OBJ } from '../shared/utils'
+import { EMPTY_OBJ, isFunction } from '../shared/utils'
 import { createComponentInstance, setupComponent } from './component'
 import { initProps } from './componentProps'
 import { initSlots } from './componentSlot'
@@ -70,6 +70,12 @@ export function createRender(options: {
     insertBeforeDom: HTMLElement | null
   ) {
     const instance = vnode2.component = createComponentInstance(vnode2, parentInstance)
+
+    if (isFunction(instance.type)) {
+      instance.render = instance.type as (...arg: any[]) => vnode
+      instance.props = (instance.type as any).props
+      return setupRenderEffect(instance, dom, insertBeforeDom)
+    }
 
     initProps(instance, vnode2.props)
 

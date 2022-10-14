@@ -1,5 +1,5 @@
 import { ShapeFlags } from "../shared/shapeFlags"
-import { isObject } from "../shared/utils"
+import { isFunction, isObject } from "../shared/utils"
 import { props, children, vnode } from "../../types/base"
 
 export const Fragment = Symbol('Fragment')
@@ -33,7 +33,7 @@ export function createVnode(rootCompontent: object | string | symbol, props?: pr
 function getShapeFlags(rootCompontent: object | string | symbol) {
   if (typeof rootCompontent === 'string') {
     return ShapeFlags.ELEMENT
-  } else if (isObject(rootCompontent)) {
+  } else if (isObject(rootCompontent) || isFunction(rootCompontent)) {
     return ShapeFlags.STATEFUL_COMPONENT
   }
 }
