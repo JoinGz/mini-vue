@@ -14,7 +14,8 @@ export function createComponentInstance(vnode: vnode, parentInstance: parentInst
     setupState: {},
     parent: parentInstance,
     provide: parentInstance ? parentInstance.provide : {},
-    isMounted: false
+    isMounted: false,
+    mounted: []
   }
 
   instance.emit = emit.bind(null, instance)
@@ -70,4 +71,12 @@ let compiler: (arg0: string) => (() => vnode) | undefined;
 
 export function createCompiler(compile: any) {
   compiler = compile
+}
+
+export function onMounted(fn: any) {
+  const currentInstance = getCurrentInstance()
+  if (!currentInstance) {
+    throw new Error("onMounted只能在setup中使用");
+  }
+  currentInstance?.mounted.push(fn)
 }

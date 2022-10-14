@@ -1,3 +1,5 @@
+import { anyFunction } from "../src/reactivity/watch"
+
 export type Obj = { [key: string | number | symbol]: any }
 
 export enum ReactiveFlags {
@@ -38,7 +40,8 @@ export type instance = {
   subTree?: vnode,
   isMounted: boolean,
   update?: ()=>any
-  next?: vnode | null
+  next?: vnode | null,
+  mounted: anyFunction[]
 }
 
 export type parentInstance = instance | null 

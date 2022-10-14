@@ -95,6 +95,10 @@ export function createRender(options: {
         instance.vnode.$el = subTree.$el
 
         instance.isMounted = true
+
+        instance.mounted.forEach(fn => {
+          fn.call(instance.proxy, instance.proxy)
+        })
       } else {
         // update
         console.log('update');
