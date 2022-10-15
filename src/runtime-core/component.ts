@@ -14,7 +14,8 @@ export function createComponentInstance(vnode: vnode, parentInstance: parentInst
     setupState: {},
     parent: parentInstance,
     provide: parentInstance ? parentInstance.provide : {},
-    isMounted: false
+    isMounted: false,
+    mounted: []
   }
 
   instance.emit = emit.bind(null, instance)
@@ -27,7 +28,7 @@ export function setupComponent(instance: instance) {
 }
 
 function setupStatefulComponent(instance: instance) {
-  const { setup } = instance.type
+  const { setup } = instance.type as Obj
 
   instance.proxy = new Proxy({_: instance}, publicInstanceProxyHandler)
 
@@ -49,11 +50,11 @@ function handleSetupResult(instance: instance, setupBack:  Obj | ( () => vnode  
 }
 
 function finishComponentSetup(instance: instance) {
-  if (instance.type.render) {
-    instance.render = instance.type.render
+  if ((instance.type as Obj).render) {
+    instance.render = (instance.type as Obj).render
   } else {
-    if (compiler && instance.type.template) {
-      instance.render = compiler(instance.type.template)
+    if (compiler && (instance.type as Obj).template) {
+      instance.render = compiler((instance.type as Obj).template)
     }
   }
 }
@@ -70,4 +71,12 @@ let compiler: (arg0: string) => (() => vnode) | undefined;
 
 export function createCompiler(compile: any) {
   compiler = compile
+}
+
+export function onMounted(fn: any) {
+  const currentInstance = getCurrentInstance()
+  if (!currentInstance) {
+    throw new Error("onMounted只能在setup中使用");
+  }
+  currentInstance?.mounted.push(fn)
 }

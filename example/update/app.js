@@ -1,9 +1,10 @@
-import { h, ref } from '../../lib/index.esm.js'
+import { h, ref, onMounted } from '../../lib/index.esm.js'
 
 
 export const app = {
   name: 'app',
   setup () {
+    onMounted(() => console.log(`app onMounted`))
     const count = ref(0)
 
     const attrData = ref({id: 'id', name: "name", foo: 'foo'})

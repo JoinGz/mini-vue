@@ -1,3 +1,5 @@
+import { anyFunction } from "../src/reactivity/watch"
+
 export type Obj = { [key: string | number | symbol]: any }
 
 export enum ReactiveFlags {
@@ -25,7 +27,7 @@ export type vnode = {
 
 export type instance = {
   vnode: vnode,
-  type: vnode,
+  type: Obj | string | symbol | anyFunction,
   props?: Obj, // 这种后面一定会增加的属性咋个定义呢？目前是定义可选
   render?: (...arg: any[]) => vnode,
   setupState: Obj,
@@ -38,7 +40,8 @@ export type instance = {
   subTree?: vnode,
   isMounted: boolean,
   update?: ()=>any
-  next?: vnode | null
+  next?: vnode | null,
+  mounted: anyFunction[]
 }
 
 export type parentInstance = instance | null 

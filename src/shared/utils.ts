@@ -180,3 +180,8 @@ export function createMapInstrumentations() {
 }
 
 export const EMPTY_OBJ = {}
+
+
+export function isFunction(val: any): val is Function {
+  return typeof val === 'function'
+}
