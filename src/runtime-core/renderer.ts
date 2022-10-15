@@ -165,7 +165,11 @@ export function createRender(options: {
     parentInstance: parentInstance,
     insertBeforeDom: HTMLElement | null
   ) {
-    mountChildren(vnode2.children as vnode[], dom, parentInstance, insertBeforeDom)
+    if (!vnode1) {
+      mountChildren(vnode2.children as vnode[], dom, parentInstance, insertBeforeDom)
+    } else {
+      patchChildren(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
+    }
   }
 
   function mountChildren(
@@ -180,11 +184,18 @@ export function createRender(options: {
   }
 
   function processText(vnode1: vnode | null, vnode2: vnode, dom: HTMLElement, insertBeforeDom: HTMLElement | null) {
-    const textNode = (vnode2.$el = document.createTextNode(
-      vnode2.children as string
-    ))
-    // dom.appendChild(textNode)
-    dom.insertBefore(textNode, insertBeforeDom)
+    if (!vnode1) {
+      const textNode = (vnode2.$el = document.createTextNode(
+        vnode2.children as string
+      ))
+      // dom.appendChild(textNode)
+      dom.insertBefore(textNode, insertBeforeDom)
+    } else {
+      const el = vnode2.$el = vnode1.$el
+      if (vnode1.children !== vnode2.children) {
+        el!.nodeValue = vnode2.children as string
+      }
+    }
   }
 
   function patchElement(vnode1: vnode, vnode2: vnode, dom: HTMLElement, parentInstance: parentInstance, insertBeforeDom: HTMLElement | null) {
