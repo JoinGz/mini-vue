@@ -92,12 +92,17 @@ const setElementText = (el: Element, value: string) => {
   el.textContent = value
 }
 
+function getNextHostNode(el: Element) {
+  return el.nextSibling
+}
+
 const domRender = createRender({
   createElement,
   customsPropsHandler,
   insert,
   remove,
-  setElementText
+  setElementText,
+  getNextHostNode
 })
 
 export function createApp(arg: Obj) {

@@ -22,7 +22,8 @@ export type vnode = {
   setup?: (...arg: any[]) => vnode,
   key: number | string,
   component?: instance,
-  template?: string
+  template?: string,
+  keepAliveCtx?: Obj | null,
 } 
 
 export type instance = {

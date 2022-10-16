@@ -1,8 +1,9 @@
 import { instance, vnode, parentInstance, props, children, Obj } from '../../types/base'
 import { effect } from '../reactivity/effect'
+import { anyFunction } from '../reactivity/watch'
 import { getSequence } from '../shared/getSequence'
 import { ShapeFlags } from '../shared/shapeFlags'
-import { EMPTY_OBJ, isFunction } from '../shared/utils'
+import { EMPTY_OBJ, isFunction, isObject } from '../shared/utils'
 import { createComponentInstance, setupComponent } from './component'
 import { initProps } from './componentProps'
 import { initSlots } from './componentSlot'
@@ -16,8 +17,9 @@ export function createRender(options: {
   insert: (...arg: any[]) => any,
   remove: (...arg: any[]) => any,
   setElementText: (...arg: any[]) => any,
+  getNextHostNode: (...arg: any[]) => any,
 }) {
-  const { customsPropsHandler, insert, createElement, remove, setElementText } = options
+  const { customsPropsHandler, insert, createElement, remove, setElementText, getNextHostNode } = options
 
   function render(vnode: vnode, dom: HTMLElement) {
     patch(null, vnode, dom, null, null)
@@ -25,6 +27,14 @@ export function createRender(options: {
 
   function patch(vnode1: vnode | null, vnode2: vnode, dom: HTMLElement, parentInstance: parentInstance, insertBeforeDom: HTMLElement | null) {
     // vnode 是组件，还是对象
+
+    if (vnode1 === vnode2) return
+    
+    if (vnode1 && !isSameVnodeType(vnode1, vnode2)) {
+      insertBeforeDom = getNextHostNode(vnode1.$el)
+      unmount(vnode1, remove)
+      vnode1 = null
+    }
 
     const { shapeFlag, type } = vnode2
 
@@ -55,6 +65,10 @@ export function createRender(options: {
     insertBeforeDom: HTMLElement | null
   ) {
     if (!vnode1) {
+      if ((vnode2 as any).keptAlive == true) {
+        return (vnode2 as any).keepAliveInstance.activated(dom, vnode2.$el, insertBeforeDom)
+      }
+      processKeepAlive(vnode2, createElement, insert)
       mountComponent(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
     } else {
       console.log('更新组件');
@@ -116,7 +130,6 @@ export function createRender(options: {
         const preSubTree = instance.subTree
         const subTree = instance.render!.call(instance.proxy, instance.proxy)
         instance.subTree = subTree
-        
         patch(preSubTree!, subTree, dom, instance, insertBeforeDom)
 
       }
@@ -151,6 +164,7 @@ export function createRender(options: {
   ) {
     const el = (vnode2.$el = createElement(vnode2.type as string))
 
+    el.__vnode = vnode2
     const { props } = vnode2
 
     for (const key in props) {
@@ -502,5 +516,36 @@ function shouldUpdateComponent(vnode1: vnode, vnode2: vnode) {
     }
   }
   return false
+}
+
+function processKeepAlive(vnode2: vnode, createElement: anyFunction, insert: anyFunction) {
+  if ((vnode2.type as Obj).__isKeepAlive) {
+    vnode2.keepAliveCtx = {
+      createElement,
+      move: (dom: Element, el: Element, anchor: Element | null) => {
+        insert(dom, el, anchor)
+      }
+    }
+  }
+}
+
+function unmount(vnode1: vnode, remove: anyFunction) {
+  if (vnode1.type === Fragment) {
+    (vnode1.children as []).forEach(el => {
+      remove(el)
+    });
+    return
+  } else if (isObject(vnode1.type)) {
+    if ((vnode1 as any).shouldKeepAlive) {
+      (vnode1 as any).keepAliveInstance.deActivated(vnode1.$el)
+    } else {
+      unmount(vnode1.component?.subTree! , remove)
+    }
+    return
+  }
+
+
+  remove(vnode1.$el)
+  
 }
 
