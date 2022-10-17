@@ -1,6 +1,7 @@
 import { ShapeFlags } from "../shared/shapeFlags"
 import { isFunction, isObject } from "../shared/utils"
 import { props, children, vnode } from "../../types/base"
+import { Obj } from "../../lib/types/base"
 
 export const Fragment = Symbol('Fragment')
 export const Text = Symbol('Text')
@@ -20,7 +21,7 @@ export function createVnode(rootCompontent: object | string | symbol, props?: pr
   } else if (Array.isArray(children)) {
     vnode.shapeFlag! |= ShapeFlags.ARRAY_CHILDREN
   }
-  
+
   if (vnode.shapeFlag! & ShapeFlags.STATEFUL_COMPONENT) {
     if (isObject(children)) {
       vnode.shapeFlag! |= ShapeFlags.SLOT_CHILDREN
@@ -33,6 +34,8 @@ export function createVnode(rootCompontent: object | string | symbol, props?: pr
 function getShapeFlags(rootCompontent: object | string | symbol) {
   if (typeof rootCompontent === 'string') {
     return ShapeFlags.ELEMENT
+  } else  if ((rootCompontent as Obj).__isTeleport) {
+    return ShapeFlags.TELEPORT
   } else if (isObject(rootCompontent) || isFunction(rootCompontent)) {
     return ShapeFlags.STATEFUL_COMPONENT
   }

@@ -5,5 +5,6 @@ export const enum ShapeFlags {
   STRING_CHILDREN = 1 << 2 , // 0100
   ARRAY_CHILDREN = 1 << 3, // 1000
   SLOT_CHILDREN = 1 << 4, // 010000
+  TELEPORT = 1 << 5,
 }
 

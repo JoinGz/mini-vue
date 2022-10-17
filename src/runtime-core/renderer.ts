@@ -52,6 +52,15 @@ export function createRender(options: {
           processElement(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
         } else if (shapeFlag! & ShapeFlags.STATEFUL_COMPONENT) {
           processComponent(vnode1, vnode2, dom, parentInstance, insertBeforeDom)
+        } else if (shapeFlag! & ShapeFlags.TELEPORT) {
+          (vnode2 as any).type.process(vnode1, vnode2, dom, parentInstance, insertBeforeDom, {
+            patch,
+            patchChildren,
+            move: (v:vnode, newTarget: HTMLElement) => {
+              const el = v.component ? v.component.subTree?.$el : v.$el
+              insert(newTarget, el)
+            }
+          })
         }
         break
     }
