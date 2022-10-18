@@ -11,3 +11,4 @@ export { createCompiler } from './component'
 export * from '../reactivity/index'
 
 export { Teleport } from './components/teleport'
+export { Transtion } from './components/transtion'

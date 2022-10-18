@@ -24,6 +24,7 @@ export type vnode = {
   component?: instance,
   template?: string,
   keepAliveCtx?: Obj | null,
+  transtionOps?: Obj
 } 
 
 export type instance = {

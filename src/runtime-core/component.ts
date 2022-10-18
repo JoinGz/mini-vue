@@ -33,7 +33,7 @@ function setupStatefulComponent(instance: instance) {
   instance.proxy = new Proxy({_: instance}, publicInstanceProxyHandler)
 
   setCurrentInstance(instance)
-  const setupBack = setup!(shallowReadOnly(instance.props!), {emit: instance.emit})
+  const setupBack = setup!(shallowReadOnly(instance.props!), {emit: instance.emit, slot: instance.$slot})
   setCurrentInstance(null)
 
   handleSetupResult(instance, setupBack)

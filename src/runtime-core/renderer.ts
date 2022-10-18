@@ -188,7 +188,15 @@ export function createRender(options: {
       el.innerText = children as string
     }
 
+    if (vnode2.transtionOps) {
+      vnode2.transtionOps.beforEnter(el)
+    }
+
     insert(dom, el, insertBeforeDom)
+
+    if (vnode2.transtionOps) {
+      vnode2.transtionOps.enter(el)
+    }
   }
 
   function processFragment(
@@ -554,7 +562,13 @@ function unmount(vnode1: vnode, remove: anyFunction) {
   }
 
 
-  remove(vnode1.$el)
+  
+
+  if (vnode1.transtionOps) {
+    vnode1.transtionOps.leave(remove, vnode1.$el)
+  } else {
+    remove(vnode1.$el)
+  }
   
 }
 
