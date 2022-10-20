@@ -1,7 +1,15 @@
-enum statusMap {
+export enum tokenTypes  {
+  TAGBEGIN = "TAGBEGIN",
+  TAGEND = "TAGEND",
+  TEXT = "TEXT",
+}
+
+
+export enum statusMap {
   init,
   tagOpen,
   tagName,
+  text,
   tagEnd,
 }
 
@@ -17,15 +25,7 @@ export function tokenizen(str: string) {
         cureentStatus = statusMap.tagOpen
         str = str.slice(1)
       } else if (isAlphabet(nowFirstChar)) {
-        chars.push(nowFirstChar)
-        str = str.slice(1)
-        if (str === '') {
-          result.push({
-            type: 'text',
-            value: chars.join(''),
-          })
-        }
-        cureentStatus = statusMap.init
+        cureentStatus = statusMap.text
       }
     } else if (cureentStatus === statusMap.tagOpen) {
       if (isAlphabet(nowFirstChar)) {
@@ -40,24 +40,35 @@ export function tokenizen(str: string) {
         str = str.slice(1)
       } else if (nowFirstChar === '>') {
         result.push({
-          type: 'tag',
+          type: tokenTypes.TAGBEGIN,
           value: chars.join(''),
         })
         chars.length = 0
         str = str.slice(1)
-      } else if (nowFirstChar === '/') {
-        cureentStatus = statusMap.tagEnd
+        cureentStatus = statusMap.init
+      }
+    }
+    else if (cureentStatus === statusMap.text) {
+      if (isAlphabet(nowFirstChar)) {
+        chars.push(nowFirstChar)
         str = str.slice(1)
-      } else if (nowFirstChar === '<') {
+        if (str === '') {
+          result.push({
+            type: tokenTypes.TEXT,
+            value: chars.join(''),
+          })
+        }
+      }  else if (nowFirstChar === '<') {
         result.push({
-          type: 'text',
+          type: tokenTypes.TEXT,
           value: chars.join(''),
         })
         chars.length = 0
         cureentStatus = statusMap.tagOpen
         str = str.slice(1)
       }
-    } else if (cureentStatus === statusMap.tagEnd) {
+    }
+    else if (cureentStatus === statusMap.tagEnd) {
       if (isAlphabet(nowFirstChar)) {
         chars.push(nowFirstChar)
         str = str.slice(1)
@@ -65,7 +76,7 @@ export function tokenizen(str: string) {
         str = str.slice(1)
         cureentStatus = statusMap.init
         result.push({
-          type: 'tagEnd',
+          type: tokenTypes.TAGEND,
           value: chars.join(''),
         })
         chars.length = 0
