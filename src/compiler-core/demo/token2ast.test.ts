@@ -1,14 +1,10 @@
 import { tokenTypes } from './FSA'
 import { nodeTypes, token2Ast } from './token2ast'
+import { tokenizen } from "./FSA";
 
 describe('token2ast', () => {
   test('happy path', () => {
-    const token = [
-      {
-        type: tokenTypes.TAGBEGIN,
-        value: 'p',
-      },
-    ]
+    const token = tokenizen('<p>')
 
     const ast = token2Ast(token)
 
@@ -25,12 +21,7 @@ describe('token2ast', () => {
   })
 
   test('文本', () => {
-    const token = [
-      {
-        type: tokenTypes.TEXT,
-        value: 'test',
-      },
-    ]
+    const token = tokenizen('test')
 
     const ast = token2Ast(token)
 
@@ -46,20 +37,7 @@ describe('token2ast', () => {
   })
 
   test('<p>vue</p>', () => {
-    const token = [
-      {
-        type: tokenTypes.TAGBEGIN,
-        value: 'p',
-      },
-      {
-        type: tokenTypes.TEXT,
-        value: 'vue',
-      },
-      {
-        type: tokenTypes.TAGEND,
-        value: 'p',
-      },
-    ]
+    const token = tokenizen('<p>vue</p>')
 
     const ast = token2Ast(token)
 
@@ -80,40 +58,7 @@ describe('token2ast', () => {
     })
   })
   test('<div><p>Vue</p><p>Template</p></div>', () => {
-    const token = [
-      {
-        type: tokenTypes.TAGBEGIN,
-        value: 'div',
-      },
-      {
-        type: tokenTypes.TAGBEGIN,
-        value: 'p',
-      },
-      {
-        type: tokenTypes.TEXT,
-        value: 'Vue',
-      },
-      {
-        type: tokenTypes.TAGEND,
-        value: 'p',
-      },
-      {
-        type: tokenTypes.TAGBEGIN,
-        value: 'p',
-      },
-      {
-        type: tokenTypes.TEXT,
-        value: 'Template',
-      },
-      {
-        type: tokenTypes.TAGEND,
-        value: 'p',
-      },
-      {
-        type: tokenTypes.TAGEND,
-        value: 'div',
-      },
-    ]
+    const token = tokenizen('<div><p>Vue</p><p>Template</p></div>')
 
     const ast = token2Ast(token)
 

@@ -11,15 +11,17 @@ interface token {
   value: string
 }
 
-interface node {
+export interface node {
   type: nodeTypes
   value: string
   child?: node[]
 }
 
+export interface Ast { type: nodeTypes; child?: node[] }
+
 export function token2Ast(token: token[]) {
   let item = token.shift()
-  const ast: { type: nodeTypes; child?: node[] } = {
+  const ast: Ast = {
     type: nodeTypes.ROOT,
     child: [],
   }
