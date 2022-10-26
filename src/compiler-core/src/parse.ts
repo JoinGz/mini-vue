@@ -66,29 +66,25 @@ function parseChildren(context: context, ancestors: string[]): any {
             node = parseElement(context, ancestors)
           } else if (context.sourse.startsWith('<!--')) {
             // 注释
-            // node = parseComment(context)
+            node = parseComment(context)
           } else if (context.sourse.startsWith('<![CDATA[')) {
             // node = parseCDATA(context, ancestors)
           } else if (context.sourse[1] === '/') {
             // 结束标签
             console.error(`缺少开始标签`)
           }
-        } else if (context.sourse[0] === '&') {
-          // 实体字符
         }
 
         break
       case TEXTMODEL.RCDATA:
         if (context.sourse.startsWith(openDelimiter)) {
           node = parseInterpolation(context)
-        } else if (context.sourse[0] === '&') {
-          // 实体字符
         }
 
         break
 
       default: /** RAWTEXT || CDATA */
-        
+        node = parseText(context)
         break
     }
 
@@ -185,7 +181,7 @@ function parseTag(context: context, type: TagType) {
   }
 }
 
-function parseText(context: context): any {
+function parseText(context: context) {
   let endIndex = context.sourse.length
 
   const endTokens = ['<', openDelimiter]
@@ -289,6 +285,24 @@ function parseProps(context: context) {
   
 
   return reuslt
+
+}
+
+function parseComment(context: context) {
+
+  advanceBy(context, '<!--'.length)
+
+  const endComentIndex = context.sourse.lastIndexOf('-->')
+
+  const content = context.sourse.slice(0, endComentIndex)
+
+  advanceBy(context, content.length)
+  advanceBy(context, '-->'.length)
+
+  return {
+    type: NodeTypes.COMMENT,
+    content
+  }
 
 }
 

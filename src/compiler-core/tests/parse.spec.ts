@@ -161,4 +161,21 @@ describe('Parse', () => {
       baseParse('<div><span></div>')
     }).toThrow(`缺少结束标签:span`)
   })
+
+  test('comment tag', () => {
+    const ast = baseParse('<div><!-- comments --></div>')
+
+    expect(ast.children[0]).toStrictEqual({
+      type: NodeTypes.ELEMENT,
+      isSelfCloseTag: false,
+      tag: 'div',
+      props: [],
+
+      children: [{
+        type: NodeTypes.COMMENT,
+        content: ' comments ',
+      }]
+    })
+    
+  })
 })
