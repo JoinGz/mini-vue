@@ -1,5 +1,5 @@
-import { NodeTypes } from "../src/nodeTypes"
-import { baseParse } from "../src/parse"
+import { NodeTypes } from '../src/nodeTypes'
+import { baseParse } from '../src/parse'
 
 describe('Parse', () => {
   test('{{}} parse', () => {
@@ -11,22 +11,65 @@ describe('Parse', () => {
       type: NodeTypes.INTERPOLATION,
       content: {
         type: NodeTypes.SIMPLE_EXPRESSION,
-        content: "message",
+        content: 'message',
       },
     })
-
   })
   test('element parse', () => {
-    const testTpl = '<div></div>'
+    const testTpl = '<div a="1" ></div>'
 
     const ast = baseParse(testTpl)
 
     expect(ast.children[0]).toStrictEqual({
       type: NodeTypes.ELEMENT,
+      isSelfCloseTag: false,
       tag: 'div',
-      children:[]
+      children: [],
+      props: [
+        {
+        name: "a",
+        value: "\"1\""
+      },
+        {
+        name: "b",
+        value: "\"2\""
+      },
+      ],
     })
+  })
+  test('self close tag', () => {
+    const testTpl = '<img />'
 
+    const ast = baseParse(testTpl)
+
+    expect(ast.children[0]).toStrictEqual({
+      type: NodeTypes.ELEMENT,
+      isSelfCloseTag: true,
+      tag: 'img',
+      props: [],
+    })
+  })
+
+  test('self close tag', () => {
+    const testTpl = '<div><img /></div>'
+
+    const ast = baseParse(testTpl)
+
+    expect(ast.children[0]).toStrictEqual({
+      type: NodeTypes.ELEMENT,
+      isSelfCloseTag: false,
+      tag: 'div',
+      props: [],
+
+      children: [
+        {
+          type: NodeTypes.ELEMENT,
+          isSelfCloseTag: true,
+          tag: 'img',
+          props: [],
+        },
+      ],
+    })
   })
 
   test('text parse', () => {
@@ -38,7 +81,6 @@ describe('Parse', () => {
       type: NodeTypes.TEXT,
       content: 'some Text',
     })
-
   })
 
   test('three case parse', () => {
@@ -49,6 +91,9 @@ describe('Parse', () => {
     expect(ast.children[0]).toStrictEqual({
       type: NodeTypes.ELEMENT,
       tag: 'div',
+      isSelfCloseTag: false,
+      props: [],
+
       children: [
         {
           type: NodeTypes.TEXT,
@@ -58,29 +103,33 @@ describe('Parse', () => {
           type: NodeTypes.INTERPOLATION,
           content: {
             type: NodeTypes.SIMPLE_EXPRESSION,
-            content: "message",
-          }
-        }
-      ]
+            content: 'message',
+          },
+        },
+      ],
     })
-
   })
 
-  test("Nested element ", () => {
- 
-    const ast = baseParse("<div><p>hi</p>{{message}}</div>");
+  test('Nested element ', () => {
+    const ast = baseParse('<div><p>hi</p>{{message}}</div>')
 
     expect(ast.children[0]).toStrictEqual({
       type: NodeTypes.ELEMENT,
-      tag: "div",
+      tag: 'div',
+      isSelfCloseTag: false,
+      props: [],
+
       children: [
         {
           type: NodeTypes.ELEMENT,
-          tag: "p",
+          tag: 'p',
+          isSelfCloseTag: false,
+          props: [],
+
           children: [
             {
               type: NodeTypes.TEXT,
-              content: "hi",
+              content: 'hi',
             },
           ],
         },
@@ -88,17 +137,16 @@ describe('Parse', () => {
           type: NodeTypes.INTERPOLATION,
           content: {
             type: NodeTypes.SIMPLE_EXPRESSION,
-            content: "message",
+            content: 'message',
           },
         },
       ],
-    });
-  });
+    })
+  })
 
-  test("should throw error when lack end tag", () => {
+  test('should throw error when lack end tag', () => {
     expect(() => {
-      baseParse("<div><span></div>");  
-    }).toThrow(`缺少结束标签:span`);
-  });
-
+      baseParse('<div><span></div>')
+    }).toThrow(`缺少结束标签:span`)
+  })
 })
