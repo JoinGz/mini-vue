@@ -15,8 +15,8 @@ describe('Parse', () => {
       },
     })
   })
-  test('element parse', () => {
-    const testTpl = '<div a="1" ></div>'
+  test('attribute parse', () => {
+    const testTpl = '<div a="1" b="2" c=3 v-show="showTitle"></div>'
 
     const ast = baseParse(testTpl)
 
@@ -27,17 +27,29 @@ describe('Parse', () => {
       children: [],
       props: [
         {
-        name: "a",
-        value: "\"1\""
-      },
+          name: 'a',
+          value: '1',
+          type: 'attribute',
+        },
         {
-        name: "b",
-        value: "\"2\""
-      },
+          name: 'b',
+          value: '2',
+          type: 'attribute',
+        },
+        {
+          name: 'c',
+          value: '3',
+          type: 'attribute',
+        },
+        {
+          name: 'v-show',
+          value: 'showTitle',
+          type: 'attribute',
+        },
       ],
     })
   })
-  test('self close tag', () => {
+  test('self close tag (only one)', () => {
     const testTpl = '<img />'
 
     const ast = baseParse(testTpl)

@@ -248,14 +248,13 @@ function parseProps(context: context) {
   // a=1 b=2>
   // a=1 b=2/>
 
-  let key;
   const reuslt = []
 
   while (context.sourse) {
     if (context.sourse.startsWith('/>') || context.sourse.startsWith('>')) {
-      break;
+      break
     }
-    let name = context.sourse.match(/^[^=]+/) as any
+    let name = context.sourse.match(/^[^/>=]+/) as any
     if (name) {
       advanceBy(context, name[0].length)
       name = name[0].trim()
@@ -264,10 +263,26 @@ function parseProps(context: context) {
       if (value) {
         advanceBy(context, value[0].length)
         value = value[1].trim()
-      context.advanceSpace()
-        
+        const quoted = value[0]
+        const isQuoted = quoted === "'" || quoted === '"'
+        if (isQuoted) {
+          value = value.slice(1)
+          const endQuotedIndex = (value as string).lastIndexOf(quoted)
+          if (endQuotedIndex) {
+            value = value.slice(0, endQuotedIndex)
+          } else {
+            throw new Error(`缺少闭合=>${quoted}`)
+          }
+        }
+        context.advanceSpace()
+      } else {
+        console.warn(`暂未适配`)
+        break
       }
-      reuslt.push({name,value})
+      reuslt.push({ name, value, type: 'attribute' })
+    } else {
+      console.warn(`暂未适配`)
+      break
     }
   }
 
